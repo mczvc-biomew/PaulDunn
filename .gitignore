@@ -1,0 +1,8 @@
+.ninja_deps
+.ninja_logs
+/cmake_install.cmake
+/compile_commands.json
+
+/.idea/
+/cmake-build-debug/
+/CMakeFiles/
