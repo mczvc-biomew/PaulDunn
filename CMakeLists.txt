@@ -15,14 +15,17 @@ endif()
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++11 -pthread -ldl")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++11 -ldl")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_definitions(-DGLES2)
+add_executable(${PROJECT_NAME} ${SRCS})
 
-add_executable(PaulDunn ${SRCS})
-
+find_package(OpenGL REQUIRED COMPONENTS OpenGL)
 find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+#find_package(GLUT REQUIRED)
 
-target_link_libraries(PaulDunn SDL2::SDL2)
+include_directories(${SDL_IMAGE_INCLUDE_DIR} ${OPENGL_INCLUDE_DIRS})# ${GLUT_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} SDL2::SDL2 SDL2_image ${OPENGL_LIBRARIES})# ${GLUT_LIBRARY})

@@ -1,21 +1,22 @@
 #ifndef FRACTAL_RENDERER_HPP
 #define FRACTAL_RENDERER_HPP
 
-#include <math.h>
-//#include <cmath>
+#include <cmath>
 #include <vector>
 
 #include <SDL2/SDL.h>
 
-#if defined(GLES2) && defined(Android)
+#if defined(GLES2) && defined(ANDROID)
   #include <GLES2/gl2.h>
-#elif defined(GLES1) && defined(Android)
+#elif defined(GLES1) && defined(ANDROID)
   #include <GLES/gl.h>
 #else
-  #include <glad/glad.h>
+extern "C" {
+   #include "gl2d.h"
+}
 #endif
 
 void renderer_init();
-void render(SDL_Window *window);
+void render();
 
 #endif

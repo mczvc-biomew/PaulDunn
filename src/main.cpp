@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include <SDL2/SDL.h>
 
 #ifndef HAVE_OPENGLES2
@@ -6,8 +6,6 @@
 #endif
 
 #ifdef HAVE_OPENGLES2
-#include <SDL2/SDL_opengles2.h>
-
 #include "fractal_renderer.hpp"
 
 #define check_return(x) if ((x) != 0) return 1
@@ -21,23 +19,24 @@
       } \
     }
 
-namespace {
+//namespace {
 	int ww, wh;
 	int nw, nh;
 	
-	int targetWidth = 1920;
-	int targetHeight = 1100;
+	int g_targetWidth = 1920;
+	int g_targetHeight = 1100;
 	
 	float aspect;
-	float targetAspect = static_cast<float>(targetWidth) / targetHeight;
+	double g_targetAspect = g_targetWidth / static_cast<float>(g_targetHeight);
 	
 	float scale = 1.0f;
 	float cropH, cropV;
 	
-	SDL_Window* window;
-}; 
+//	SDL_Window* window;
+//};
 
 void init_renderer(int originX, int originY, int width, int height) {
+#if 0
 	glViewport(originX, originY, width, height);
 	
 	glEnable(GL_BLEND);
@@ -49,13 +48,11 @@ void init_renderer(int originX, int originY, int width, int height) {
 	SDL_GL_SwapWindow(window);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
-	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    /* Clear the entire screen to our selected color. */
-    //SDL_RenderClear(renderer);
+#endif
 }
 
 int init_window_x_renderer() {
+#if 0
 	window = SDL_CreateWindow("Bubble Universe",
 		SDL_WINDOWPOS_UNDEFINED, 
 		SDL_WINDOWPOS_UNDEFINED, 
@@ -95,9 +92,11 @@ int init_window_x_renderer() {
 	
 	init_renderer(cropH, cropV, nw, nh);
 	return 0;
+#endif
 }
 
 int init() {
+#if 0
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
 		fprintf(stderr, "SDL_Init Error: %s\n", SDL_GetError());
@@ -117,6 +116,7 @@ int init() {
     
     SDL_GL_SetSwapInterval(1);
 	return 0;
+#endif
 }
 
 bool paused = false;
@@ -124,14 +124,12 @@ bool paused = false;
 int main(int argc, char *argv[])
 {
 	bool quit = false;
-	check_return(init());
-	check_return(init_window_x_renderer());
+//	check_return(init());
+//	check_return(init_window_x_renderer());
+    createWindow("Bubble Universe");
 	
-	//glCullFace(GL_FRONT);
-	//glFrontFace(GL_CW);
-
 	// Initialize triangle renderer
-	renderer_init();
+	//renderer_init();
 
 	while (!quit)
 	{
@@ -141,17 +139,18 @@ int main(int argc, char *argv[])
 			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
 				SDL_Log("Quitting..");
         		quit = true;
-        	} else if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(1)) > 0) {
+        	} else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_p) {
         		paused = !paused;
         	} 
 		}
 		
 		// Draw triangle
-		render(window);
+		render();
 	}
 
-	SDL_DestroyWindow(window);
-	SDL_Quit();
+    GL2D_Quit();
+//	SDL_DestroyWindow(window);
+//	SDL_Quit();
 	return 0;
 }
 

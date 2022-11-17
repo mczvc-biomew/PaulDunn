@@ -1,5 +1,6 @@
 /* http://paulbourke.net/fractals/clifford/paul_richards/main.cpp */
 #ifndef PAULBOURKE_COLOR
+// PaulBourke's Color -- with create Hue from value
 #define PAULBOURKE_COLOR
 
 class Color
@@ -7,7 +8,7 @@ class Color
   public:
 	double r, g, b;
 
-	Color(const double &red = 0, 
+	explicit Color(const double &red = 0,
 		const double &green = 0, 
 		const double &blue = 0) 
 		: r(red), g(green), b(blue)
