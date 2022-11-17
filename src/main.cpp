@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     createWindow("Bubble Universe");
 	
 	// Initialize triangle renderer
-	//renderer_init();
+	renderer_init();
 
 	while (!quit)
 	{

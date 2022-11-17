@@ -14,7 +14,6 @@
 
 
 #include "gl2d.h"
-//#include <glad/glad.h>
 #include <SDL2/SDL_image.h>
 #include <GL/glut.h>
 
@@ -33,87 +32,19 @@ static SDL_Renderer *renderer = NULL;
 //    Private Functions
 
 
-#define MAX_BATCH_DRAW 256
-static GLfloat vertexes[MAX_BATCH_DRAW * 2 * 6];
-static GLfloat textures[MAX_BATCH_DRAW * 2 * 6];
-static GLfloat colors[MAX_BATCH_DRAW * 4 * 6 * 2];
-static int vertexIndex;
-static int textureIndex;
-static int colorIndex;
-
-// OpenGL ES 2.0 uses shaders
-static const char *VERTEX_SHADER = "#version 330 core\n"
-                            "attribute vec4 a_position;\n"
-                            "attribute vec4 a_color;\n"
-                            "attribute vec2 a_texCoord0;\n"
-                            "varying vec4 v_color;\n"
-                            "varying vec2 v_texCoords;"
-                            "void main()\n"
-                            "{\n"
-                            "gl_Position = vec4(a_position.xyz, 1.0);\n"
-                            "gl_PointSize = 1.0;\n"
-                            "v_color = a_color;\n"
-                            "v_texCoords = a_texCoord0;\n"
-                            "}";
-
-static const char *FRAGMENT_SHADER = "#version 330 core\n"
-                              "precision mediump float;\n"
-                              "varying vec4 v_color;\n"
-                              "varying vec2 v_texCoords;\n"
-                              "uniform sampler2D u_texture;\n"
-                              "void main()\n"
-                              "{\n"
-                              "gl_FragColor = v_color + texture2D(u_texture, v_texCoords);\n"
-                              "}";
-
-
 static void init_renderer(int originX, int originY, int width, int height) {
-//    double FOVy;
-//    double aspect;
-//    double znear;
-//    double zfar;
-
     glViewport(originX, originY, width, height);
-
-// Load shaders
-    GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex, 1, &VERTEX_SHADER, NULL);
-    glCompileShader(vertex);
-
-    GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment, 1, &FRAGMENT_SHADER, NULL);
-    glCompileShader(fragment);
-
-    // Combine shaders into program
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertex);
-    glAttachShader(program, fragment);
-    glLinkProgram(program);
-    // Use it
-    glUseProgram(program);
-
-    // Point position attribute to vertexes
-    GLint position = glGetAttribLocation(program, "a_position");
-    glEnableVertexAttribArray(position);
-    glVertexAttribPointer(position, 2, GL_FLOAT, GL_FALSE, 0, vertexes);
-    // Point texel attribute to vertexes
-    GLint texture = glGetAttribLocation(program, "a_texCoord0");
-    glEnableVertexAttribArray(texture);
-    glVertexAttribPointer(texture, 2, GL_FLOAT, GL_FALSE, 0, textures);
-    // Point color attribute to colors
-    GLint color = glGetAttribLocation(program, "a_color");
-    glEnableVertexAttribArray(color);
-    glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, colors);
-
     gCurrentTexture = 0;
-    vertexIndex = 0;
-    colorIndex = 0;
 }
 
 static void init2D() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+//    double FOVy;
+//    double aspect;
+//    double znear;
+//    double zfar;
 //    // Set gluPerspective params
 //    FOVy = 90 / 2; //45 deg fovy
 //    aspect = width / height;
@@ -134,9 +65,9 @@ static void init2D() {
     glClearDepth(1.0);                       //'Set Depth buffer to 1(z-Buffer)
     glDisable(GL_DEPTH_TEST);                //'Disable Depth Testing so that our z-buffer works
 
-    //'compare each incoming pixel z value with the z value present in the depth buffer
-    //'LEQUAL means than pixel is drawn if the incoming z value is less than
-    //'or equal to the stored z value
+    // compare each incoming pixel z value with the z value present in the depth buffer
+    // LEQUAL means than pixel is drawn if the incoming z value is less than
+    //or equal to the stored z value
     glDepthFunc(GL_LEQUAL);
 
 //    'have one or more material parameters track the current color
@@ -154,15 +85,13 @@ static void init2D() {
 
 //    glEnable(GL_ALPHA_TEST);
 //    glAlphaFunc(GL_GREATER, 0);
-    //'Disable Backface culling
+//    'Disable Backface culling
     glDisable(GL_CULL_FACE);
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
     glDisable(GL_TEXTURE_1D);
-//    glDisable(GL_LIGHTING);
     glDisable(GL_DITHER);
-//    glDisable(GL_FOG);
 
 //    glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
     glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
@@ -267,11 +196,8 @@ void GL2D_Quit() {
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
-/******************************************************************************
 
-   Private!!!
-
-******************************************************************************/
+//< Private
 
 static SDL_Surface *LoadTexture(const char *filename) {
     SDL_Surface *img = IMG_Load(filename);
@@ -293,11 +219,6 @@ static SDL_Surface *LoadTexture(const char *filename) {
     return optimizedImg;
 
 }
-
-/******************************************************************************
-
-
-******************************************************************************/
 
 GLuint GetGlowImage() {
 
@@ -569,346 +490,339 @@ void glLineGlow(const double x1, const double y1,
                 const GLfloat g, const GLfloat b,
                 const GLfloat a
 ) {
-
-    GLuint textureID;
-
-    textureID = GetGlowImage();
-//    TODO glColor4ub
-//    glColor4ubv((GLubyte *) (&color));
-
-    // Only change active texture when there is a need
-    // Speeds up the rendering by batching textures
-
-    if (textureID != gCurrentTexture) {
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        gCurrentTexture = textureID;
-    }
-
-
-    float nx, ny;
-    nx = -(y2 - y1);
-    ny = (x2 - x1);
-
-    float leng;
-    leng = sqrt(nx * nx + ny * ny);
-    nx = nx / leng;
-    ny = ny / leng;
-
-    nx *= width / 2.0;
-    ny *= width / 2.0;
-
-    float lx1, ly1, lx2, ly2, lx3, ly3, lx4, ly4;
-
-    lx1 = x2 + nx;
-    ly1 = y2 + ny;
-    lx2 = x2 - nx;
-    ly2 = y2 - ny;
-    lx3 = x1 - nx;
-    ly3 = y1 - ny;
-    lx4 = x1 + nx;
-    ly4 = y1 + ny;
-
-    // MAIN
-    if (vertexIndex + 12 > MAX_BATCH_DRAW*2*6 ||
-        colorIndex + 4*6 > MAX_BATCH_DRAW*4*6*2 ||
-        textureIndex + 12 > MAX_BATCH_DRAW*2*6) {
-        flush();
-    }
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 0] = lx1;
-    vertexes[vertexIndex + 1] = ly1;
-    textures[textureIndex + 0] = 0.5f;
-    textures[textureIndex + 1] = 0.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 2] = lx2;
-    vertexes[vertexIndex + 3] = ly2;
-    textures[textureIndex + 2] = 0.5f;
-    textures[textureIndex + 3] = 1.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 4] = lx3;
-    vertexes[vertexIndex + 5] = ly3;
-    textures[textureIndex + 4] = 0.5f;
-    textures[textureIndex + 5] = 1.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 6] = lx1;
-    vertexes[vertexIndex + 7] = ly1;
-    textures[textureIndex + 6] = 0.5f;
-    textures[textureIndex + 7] = 0.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 8] = lx3;
-    vertexes[vertexIndex + 9] = ly3;
-    textures[textureIndex + 8] = 0.5f;
-    textures[textureIndex + 9] = 1.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 10] = lx4;
-    vertexes[vertexIndex + 11] = ly4;
-    textures[textureIndex + 10] = 0.5f;
-    textures[textureIndex + 11] = 0.0f;
-
-    vertexIndex += 12;
-    textureIndex += 12;
-//    glBegin(GL_TRIANGLES);
-//    glTexCoord2f(0.5, 0.0);
-//    glVertex3f(lx1, ly1, 0.0);
-//    glTexCoord2f(0.5, 1.0);
-//    glVertex3f(lx2, ly2, 0.0);
-//    glTexCoord2f(0.5, 1.0);
-//    glVertex3f(lx3, ly3, 0.0);
 //
-//    glTexCoord2f(0.5, 0.0);
-//    glVertex3f(lx1, ly1, 0.0);
-//    glTexCoord2f(0.5, 1.0);
-//    glVertex3f(lx3, ly3, 0.0);
-//    glTexCoord2f(0.5, 0.0);
-//    glVertex3f(lx4, ly4, 0.0);
-//    glEnd();
-
-    //RIGHT
-    float lx5, ly5, lx6, ly6, vx, vy;
-    vx = (x2 - x1);
-    vy = (y2 - y1);
-    leng = sqrt(vx * vx + vy * vy);
-    vx = vx / leng;
-    vy = vy / leng;
-    vx *= width / 2.0;
-    vy *= width / 2.0;
-
-    lx5 = lx1 + vx;
-    ly5 = ly1 + vy;
-    lx6 = lx2 + vx;
-    ly6 = ly2 + vy;
-
-//    glBegin(GL_TRIANGLES);
-//    glTexCoord2f(0.5, 0.0);
-//    glVertex3f(lx1, ly1, 0.0);
-//    glTexCoord2f(1.0, 0.0);
-//    glVertex3f(lx5, ly5, 0.0);
-//    glTexCoord2f(1.0, 1.0);
-//    glVertex3f(lx6, ly6, 0.0);
+//    GLuint textureID;
 //
-//    glTexCoord2f(0.5, 0.0);
-//    glVertex3f(lx1, ly1, 0.0);
-//    glTexCoord2f(1.0, 1.0);
-//    glVertex3f(lx6, ly6, 0.0);
-//    glTexCoord2f(0.5, 1.0);
-//    glVertex3f(lx2, ly2, 0.0);
-//    glEnd();
-    if (vertexIndex + 12 > MAX_BATCH_DRAW*2*6 ||
-        colorIndex + 4*6 > MAX_BATCH_DRAW*4*6*2 ||
-        textureIndex + 12 > MAX_BATCH_DRAW*2*6) {
-        flush();
-    }
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 0] = lx1;
-    vertexes[vertexIndex + 1] = ly1;
-    textures[textureIndex + 0] = 0.5f;
-    textures[textureIndex + 1] = 0.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 2] = lx5;
-    vertexes[vertexIndex + 3] = ly5;
-    textures[textureIndex + 2] = 1.0f;
-    textures[textureIndex + 3] = 0.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 4] = lx6;
-    vertexes[vertexIndex + 5] = ly6;
-    textures[textureIndex + 4] = 1.0f;
-    textures[textureIndex + 5] = 1.0f;
-
+//    textureID = GetGlowImage();
+////    TODO glColor4ub
+////    glColor4ubv((GLubyte *) (&color));
+//
+//    // Only change active texture when there is a need
+//    // Speeds up the rendering by batching textures
+//
+//    if (textureID != gCurrentTexture) {
+//        glBindTexture(GL_TEXTURE_2D, textureID);
+//        gCurrentTexture = textureID;
+//    }
+//
+//
+//    float nx, ny;
+//    nx = -(y2 - y1);
+//    ny = (x2 - x1);
+//
+//    float leng;
+//    leng = sqrt(nx * nx + ny * ny);
+//    nx = nx / leng;
+//    ny = ny / leng;
+//
+//    nx *= width / 2.0;
+//    ny *= width / 2.0;
+//
+//    float lx1, ly1, lx2, ly2, lx3, ly3, lx4, ly4;
+//
+//    lx1 = x2 + nx;
+//    ly1 = y2 + ny;
+//    lx2 = x2 - nx;
+//    ly2 = y2 - ny;
+//    lx3 = x1 - nx;
+//    ly3 = y1 - ny;
+//    lx4 = x1 + nx;
+//    ly4 = y1 + ny;
+//
+//    // MAIN
+//    if (vertexIndex + 12 > MAX_BATCH_DRAW*2*6 ||
+//        colorIndex + 4*6 > MAX_BATCH_DRAW*4*6*2 ||
+//        textureIndex + 12 > MAX_BATCH_DRAW*2*6) {
+//        flush();
+//    }
 //    colors[colorIndex + 0] = r;
 //    colors[colorIndex + 1] = g;
 //    colors[colorIndex + 2] = b;
 //    colors[colorIndex + 3] = a;
 //    colorIndex += 4;
-
-    vertexes[vertexIndex + 6] = lx1;
-    vertexes[vertexIndex + 7] = ly1;
-    textures[textureIndex + 6] = 0.5f;
-    textures[textureIndex + 7] = 0.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 8] = lx6;
-    vertexes[vertexIndex + 9] = ly6;
-    textures[textureIndex + 8] = 1.0f;
-    textures[textureIndex + 9] = 1.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 10] = lx2;
-    vertexes[vertexIndex + 11] = ly2;
-    textures[textureIndex + 10] = 0.5f;
-    textures[textureIndex + 11] = 1.0f;
-
-    vertexIndex += 12;
-    textureIndex += 12;
-
-    // LEFT
-    lx5 = lx4 - vx;
-    ly5 = ly4 - vy;
-    lx6 = lx3 - vx;
-    ly6 = ly3 - vy;
-
-//    glBegin(GL_TRIANGLES);
-//    glTexCoord2f(0.5, 0.0);
-//    glVertex3f(lx4, ly4, 0.0);
-//    glTexCoord2f(0.5, 1.0);
-//    glVertex3f(lx3, ly3, 0.0);
-//    glTexCoord2f(1.0, 1.0);
-//    glVertex3f(lx6, ly6, 0.0);
 //
-//    glTexCoord2f(0.5, 0.0);
-//    glVertex3f(lx4, ly4, 0.0);
-//    glTexCoord2f(1.0, 1.0);
-//    glVertex3f(lx6, ly6, 0.0);
-//    glTexCoord2f(1.0, 0.0);
-//    glVertex3f(lx5, ly5, 0.0);
-//    glEnd();
-    if (vertexIndex + 12 > MAX_BATCH_DRAW*2*6 ||
-        colorIndex + 4*6 > MAX_BATCH_DRAW*4*6*2 ||
-        textureIndex + 12 > MAX_BATCH_DRAW*2*6) {
-        flush();
-    }
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 0] = lx4;
-    vertexes[vertexIndex + 1] = ly4;
-    textures[textureIndex + 0] = 0.5f;
-    textures[textureIndex + 1] = 0.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 2] = lx3;
-    vertexes[vertexIndex + 3] = ly3;
-    textures[textureIndex + 2] = 0.5f;
-    textures[textureIndex + 3] = 1.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 4] = lx6;
-    vertexes[vertexIndex + 5] = ly6;
-    textures[textureIndex + 4] = 1.0f;
-    textures[textureIndex + 5] = 1.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 6] = lx4;
-    vertexes[vertexIndex + 7] = ly4;
-    textures[textureIndex + 6] = 0.5f;
-    textures[textureIndex + 7] = 0.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 8] = lx6;
-    vertexes[vertexIndex + 9] = ly6;
-    textures[textureIndex + 8] = 1.0f;
-    textures[textureIndex + 9] = 1.0f;
-
-    colors[colorIndex + 0] = r;
-    colors[colorIndex + 1] = g;
-    colors[colorIndex + 2] = b;
-    colors[colorIndex + 3] = a;
-    colorIndex += 4;
-
-    vertexes[vertexIndex + 10] = lx5;
-    vertexes[vertexIndex + 11] = ly5;
-    textures[textureIndex + 10] = 1.0f;
-    textures[textureIndex + 11] = 0.0f;
-
-    vertexIndex += 12;
-    textureIndex += 12;
-
-//    if (vertexIndex >= (MAX_BATCH_DRAW*2*6 - 12*(MAX_BATCH_DRAW-3)))
+//    vertexes[vertexIndex + 0] = lx1;
+//    vertexes[vertexIndex + 1] = ly1;
+//    textures[textureIndex + 0] = 0.5f;
+//    textures[textureIndex + 1] = 0.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 2] = lx2;
+//    vertexes[vertexIndex + 3] = ly2;
+//    textures[textureIndex + 2] = 0.5f;
+//    textures[textureIndex + 3] = 1.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 4] = lx3;
+//    vertexes[vertexIndex + 5] = ly3;
+//    textures[textureIndex + 4] = 0.5f;
+//    textures[textureIndex + 5] = 1.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 6] = lx1;
+//    vertexes[vertexIndex + 7] = ly1;
+//    textures[textureIndex + 6] = 0.5f;
+//    textures[textureIndex + 7] = 0.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 8] = lx3;
+//    vertexes[vertexIndex + 9] = ly3;
+//    textures[textureIndex + 8] = 0.5f;
+//    textures[textureIndex + 9] = 1.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 10] = lx4;
+//    vertexes[vertexIndex + 11] = ly4;
+//    textures[textureIndex + 10] = 0.5f;
+//    textures[textureIndex + 11] = 0.0f;
+//
+//    vertexIndex += 12;
+//    textureIndex += 12;
+////    glBegin(GL_TRIANGLES);
+////    glTexCoord2f(0.5, 0.0);
+////    glVertex3f(lx1, ly1, 0.0);
+////    glTexCoord2f(0.5, 1.0);
+////    glVertex3f(lx2, ly2, 0.0);
+////    glTexCoord2f(0.5, 1.0);
+////    glVertex3f(lx3, ly3, 0.0);
+////
+////    glTexCoord2f(0.5, 0.0);
+////    glVertex3f(lx1, ly1, 0.0);
+////    glTexCoord2f(0.5, 1.0);
+////    glVertex3f(lx3, ly3, 0.0);
+////    glTexCoord2f(0.5, 0.0);
+////    glVertex3f(lx4, ly4, 0.0);
+////    glEnd();
+//
+//    //RIGHT
+//    float lx5, ly5, lx6, ly6, vx, vy;
+//    vx = (x2 - x1);
+//    vy = (y2 - y1);
+//    leng = sqrt(vx * vx + vy * vy);
+//    vx = vx / leng;
+//    vy = vy / leng;
+//    vx *= width / 2.0;
+//    vy *= width / 2.0;
+//
+//    lx5 = lx1 + vx;
+//    ly5 = ly1 + vy;
+//    lx6 = lx2 + vx;
+//    ly6 = ly2 + vy;
+//
+////    glBegin(GL_TRIANGLES);
+////    glTexCoord2f(0.5, 0.0);
+////    glVertex3f(lx1, ly1, 0.0);
+////    glTexCoord2f(1.0, 0.0);
+////    glVertex3f(lx5, ly5, 0.0);
+////    glTexCoord2f(1.0, 1.0);
+////    glVertex3f(lx6, ly6, 0.0);
+////
+////    glTexCoord2f(0.5, 0.0);
+////    glVertex3f(lx1, ly1, 0.0);
+////    glTexCoord2f(1.0, 1.0);
+////    glVertex3f(lx6, ly6, 0.0);
+////    glTexCoord2f(0.5, 1.0);
+////    glVertex3f(lx2, ly2, 0.0);
+////    glEnd();
+//    if (vertexIndex + 12 > MAX_BATCH_DRAW*2*6 ||
+//        colorIndex + 4*6 > MAX_BATCH_DRAW*4*6*2 ||
+//        textureIndex + 12 > MAX_BATCH_DRAW*2*6) {
 //        flush();
+//    }
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 0] = lx1;
+//    vertexes[vertexIndex + 1] = ly1;
+//    textures[textureIndex + 0] = 0.5f;
+//    textures[textureIndex + 1] = 0.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 2] = lx5;
+//    vertexes[vertexIndex + 3] = ly5;
+//    textures[textureIndex + 2] = 1.0f;
+//    textures[textureIndex + 3] = 0.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 4] = lx6;
+//    vertexes[vertexIndex + 5] = ly6;
+//    textures[textureIndex + 4] = 1.0f;
+//    textures[textureIndex + 5] = 1.0f;
+//
+////    colors[colorIndex + 0] = r;
+////    colors[colorIndex + 1] = g;
+////    colors[colorIndex + 2] = b;
+////    colors[colorIndex + 3] = a;
+////    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 6] = lx1;
+//    vertexes[vertexIndex + 7] = ly1;
+//    textures[textureIndex + 6] = 0.5f;
+//    textures[textureIndex + 7] = 0.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 8] = lx6;
+//    vertexes[vertexIndex + 9] = ly6;
+//    textures[textureIndex + 8] = 1.0f;
+//    textures[textureIndex + 9] = 1.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 10] = lx2;
+//    vertexes[vertexIndex + 11] = ly2;
+//    textures[textureIndex + 10] = 0.5f;
+//    textures[textureIndex + 11] = 1.0f;
+//
+//    vertexIndex += 12;
+//    textureIndex += 12;
+//
+//    // LEFT
+//    lx5 = lx4 - vx;
+//    ly5 = ly4 - vy;
+//    lx6 = lx3 - vx;
+//    ly6 = ly3 - vy;
+//
+////    glBegin(GL_TRIANGLES);
+////    glTexCoord2f(0.5, 0.0);
+////    glVertex3f(lx4, ly4, 0.0);
+////    glTexCoord2f(0.5, 1.0);
+////    glVertex3f(lx3, ly3, 0.0);
+////    glTexCoord2f(1.0, 1.0);
+////    glVertex3f(lx6, ly6, 0.0);
+////
+////    glTexCoord2f(0.5, 0.0);
+////    glVertex3f(lx4, ly4, 0.0);
+////    glTexCoord2f(1.0, 1.0);
+////    glVertex3f(lx6, ly6, 0.0);
+////    glTexCoord2f(1.0, 0.0);
+////    glVertex3f(lx5, ly5, 0.0);
+////    glEnd();
+//    if (vertexIndex + 12 > MAX_BATCH_DRAW*2*6 ||
+//        colorIndex + 4*6 > MAX_BATCH_DRAW*4*6*2 ||
+//        textureIndex + 12 > MAX_BATCH_DRAW*2*6) {
+//        flush();
+//    }
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 0] = lx4;
+//    vertexes[vertexIndex + 1] = ly4;
+//    textures[textureIndex + 0] = 0.5f;
+//    textures[textureIndex + 1] = 0.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 2] = lx3;
+//    vertexes[vertexIndex + 3] = ly3;
+//    textures[textureIndex + 2] = 0.5f;
+//    textures[textureIndex + 3] = 1.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 4] = lx6;
+//    vertexes[vertexIndex + 5] = ly6;
+//    textures[textureIndex + 4] = 1.0f;
+//    textures[textureIndex + 5] = 1.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 6] = lx4;
+//    vertexes[vertexIndex + 7] = ly4;
+//    textures[textureIndex + 6] = 0.5f;
+//    textures[textureIndex + 7] = 0.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 8] = lx6;
+//    vertexes[vertexIndex + 9] = ly6;
+//    textures[textureIndex + 8] = 1.0f;
+//    textures[textureIndex + 9] = 1.0f;
+//
+//    colors[colorIndex + 0] = r;
+//    colors[colorIndex + 1] = g;
+//    colors[colorIndex + 2] = b;
+//    colors[colorIndex + 3] = a;
+//    colorIndex += 4;
+//
+//    vertexes[vertexIndex + 10] = lx5;
+//    vertexes[vertexIndex + 11] = ly5;
+//    textures[textureIndex + 10] = 1.0f;
+//    textures[textureIndex + 11] = 0.0f;
+//
+//    vertexIndex += 12;
+//    textureIndex += 12;
+//
+////    if (vertexIndex >= (MAX_BATCH_DRAW*2*6 - 12*(MAX_BATCH_DRAW-3)))
+////        flush();
+//
+////    glColor4ub(255, 255, 255, 255);
 
-//    glColor4ub(255, 255, 255, 255);
-
-}
-
-void flush() {
-    glDrawArrays(GL_TRIANGLES, 0, vertexIndex/(2*2*3));
-    vertexIndex = 0;
-    colorIndex = 0;
-    textureIndex = 0;
 }
 
 
@@ -1590,7 +1504,5 @@ GLuint glLoadSprite(const char *filename,
 }
 
 void updateWindow() {
-    //SDL_UpdateWindowSurface(window);
-    //SDL_RenderPresent(renderer);
     SDL_GL_SwapWindow(window);
 }

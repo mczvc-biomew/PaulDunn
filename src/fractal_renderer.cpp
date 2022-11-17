@@ -15,7 +15,7 @@ namespace
 {
     const double width = 0.8;
     const double height = 4.0;
-    const int n = 256 / 3;
+    const int n = 200000;
     int frames = 1;
 
     double x = 0.0;
@@ -52,22 +52,22 @@ static GLfloat colors[n << 2];
 
 // OpenGL ES 2.0 uses shaders
 const char *VERTEX_SHADER = "#version 330 core\n"
-	"attribute vec4 position;\n"
-	"attribute vec4 color;\n"
-	"varying vec4 vcolor;\n"
+	"attribute vec4 a_position;\n"
+	"attribute vec4 a_color;\n"
+	"varying vec4 v_color;\n"
 	"void main()\n"
 	"{\n"
-	"gl_Position = vec4(position.xyz, 1.0);\n"
+	"gl_Position = vec4(a_position.xyz, 1.0);\n"
 	"gl_PointSize = 1.0;\n"
-	"vcolor = color;\n"
+	"v_color = a_color;\n"
 	"}";
 
 const char *FRAGMENT_SHADER = "#version 330 core\n"
 	"precision mediump float;\n"
-	"varying vec4 vcolor;\n"
+	"varying vec4 v_color;\n"
 	"void main()\n"
 	"{\n"
-	"gl_FragColor = vcolor;\n"
+	"gl_FragColor = v_color;\n"
 	"}";
 
 }; using namespace GLContext;
@@ -93,15 +93,14 @@ void renderer_init()
 	glUseProgram(program);
 
 	// Point position attribute to vertexes
-	GLint position = glGetAttribLocation(program, "position");
+	GLint position = glGetAttribLocation(program, "a_position");
 	glEnableVertexAttribArray(position);
 	glVertexAttribPointer(position, 2, GL_FLOAT, GL_FALSE, 0, vertexes);
 	// Point color attribute to colors
-	GLint color = glGetAttribLocation(program, "color");
+	GLint color = glGetAttribLocation(program, "a_color");
 	glEnableVertexAttribArray(color);
 	glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, colors);
 
-//    glBlendMode(GL2D_GLOW);
 }
 
 void render()
@@ -109,7 +108,7 @@ void render()
     if (paused) return;
 	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    clearScreen();
+//    clearScreen();
 
 	for (int i = 0, j = 0; i < n; i++, j+=t)
 	{
@@ -125,23 +124,18 @@ void render()
         const double v1 = static_cast<GLfloat>((u - minX + 0.5) * daw - 0.25);
         const double v2 = static_cast<GLfloat>((v - minY + 0.5) * dah - 0.25);
 
-//		vertexes[jj + 0] = static_cast<GLfloat>((u - minX + 0.5) * daw - 0.25);
-//		vertexes[jj + 1] = static_cast<GLfloat>((v - minY + 0.5) * dah - 0.25);
-//
-//		colors[i*4 + 0] = static_cast<GLfloat>(color.r);
-//		colors[i*4 + 1] = static_cast<GLfloat>(color.g);
-//		colors[i*4 + 2] = static_cast<GLfloat>(color.b);
-//		colors[i*4 + 3] = 99.0/255.0;
-        glLineGlow(v1, v2, v1+0.00009, v2+0.00009, 0.09,
-                   static_cast<GLfloat>(color.r),
-                   static_cast<GLfloat>(color.g),
-                   static_cast<GLfloat>(color.b),
-                   static_cast<GLfloat>(99.0/255.0));
+		vertexes[jj + 0] = v1;
+		vertexes[jj + 1] = v2;
+
+		colors[i*4 + 0] = static_cast<GLfloat>(color.r);
+		colors[i*4 + 1] = static_cast<GLfloat>(color.g);
+		colors[i*4 + 2] = static_cast<GLfloat>(color.b);
+		colors[i*4 + 3] = 99.0/255.0;
 
     }
-	t += 1.0/60.0 * 0.1;
+	t += 1.0/60.0;
 
+	glDrawArrays(GL_POINTS, 0, n);
     updateWindow();
-//    SDL_GL_SwapWindow(window);
 
 }
