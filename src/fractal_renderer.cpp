@@ -47,7 +47,7 @@ namespace /* STD */ {
 
 
 namespace GLContext {
-static GLfloat vertexData[n * 3];
+static GLfloat vertexData[n * 2];
 static GLfloat colorData[n * 4];
 
 // OpenGL ES 2.0 uses shaders
@@ -298,7 +298,7 @@ void rendererInit()
     // Point position attribute to vertexData
     GLint position = glGetAttribLocation(program, "a_position");
     glEnableVertexAttribArray(position);
-    glVertexAttribPointer(position, 3, GL_FLOAT, GL_FALSE, 0, vertexData);
+    glVertexAttribPointer(position, 2, GL_FLOAT, GL_FALSE, 0, vertexData);
     // Point color attribute to colorData
     GLint color = glGetAttribLocation(program, "a_color");
     glEnableVertexAttribArray(color);
@@ -334,7 +334,7 @@ void Render()
 
         vertexData[jj + 0] = v1;
         vertexData[jj + 1] = v2;
-        vertexData[jj + 2] = t;
+//        vertexData[jj + 2] = t;
 
         colorData[i * 4 + 0] = static_cast<GLfloat>(color.r);
         colorData[i * 4 + 1] = static_cast<GLfloat>(color.g);
