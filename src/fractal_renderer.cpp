@@ -65,9 +65,12 @@ const char *VERTEX_SHADER = "#version 330 core\n"
 const char *FRAGMENT_SHADER = "#version 330 core\n"
 	"precision mediump float;\n"
 	"varying vec4 v_color;\n"
+    "layout(location = 0) out vec4 fragColor;\n"
+    "uniform sampler2D s_texture;\n"
 	"void main()\n"
 	"{\n"
-	"   gl_FragColor = v_color;\n"
+    "   vec4 texColor = texture(s_texture, gl_PointCoord);\n"
+    "   fragColor = vec4(v_color) * texColor;\n"
 	"}";
 
 const char *VERTEX_SHADER_ES3 = "#version 330 core\n"
@@ -268,6 +271,19 @@ void renderInit3() {
     loadParticles();
 }
 
+static void enableTexturing() {
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, GetGlowImage());
+
+    glUniform1i(samplerLoc, 0);
+
+    glPointSize(80);
+}
+
 void rendererInit()
 {
     GLuint program = loadProgram(VERTEX_SHADER, FRAGMENT_SHADER);
@@ -276,6 +292,8 @@ void rendererInit()
     }
     // Use it
     glUseProgram(program);
+
+    samplerLoc = glGetUniformLocation(program, "s_texture");
 
     // Point position attribute to vertexData
     GLint position = glGetAttribLocation(program, "a_position");
@@ -286,23 +304,24 @@ void rendererInit()
     glEnableVertexAttribArray(color);
     glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, colorData);
 
+    enableTexturing();
 }
 
 void Render()
 {
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    if (t >= 23.1833 && !paused) {
-        paused = true;
-        auto end = clock_now();
-        auto elapsed = chrono::duration_cast<chrono::milliseconds>(end - start).count();
-        printf("Time elapse: %d\n", elapsed); // 42_996 with clearScreen, without, 44_590
-    }
+//    if (t >= 23.1833 && !paused) {
+//        paused = true;
+//        auto end = clock_now();
+//        auto elapsed = chrono::duration_cast<chrono::milliseconds>(end - start).count();
+//        printf("Time elapse: %d\n", elapsed); // 42_996 with clearScreen, without, 44_590
+//    }
     if (paused) return;
     //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-//    clearScreen();
+    clearScreen();
 
 //     When t starts with 9.0 and it completes at t = 23.1833..
 //  When n = 200000;
