@@ -32,7 +32,7 @@ static SDL_Renderer *renderer = NULL;
 //    Private Functions
 
 
-static void init_renderer(int originX, int originY, int width, int height) {
+static void initViewPort(int originX, int originY, int width, int height) {
     glViewport(originX, originY, width, height);
     gCurrentTexture = 0;
 }
@@ -174,7 +174,7 @@ int createWindow(const char* title) {
     g_scaledHeight = g_targetHeight * g_scale;
 
     // Initialize viewport and shaders
-    init_renderer(g_cropH, g_cropV, g_scaledWidth, g_scaledHeight);
+    initViewPort(g_cropH, g_cropV, g_scaledWidth, g_scaledHeight);
 
     //printf("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
     printf("Vendor:   %s\n", glGetString(GL_VENDOR));

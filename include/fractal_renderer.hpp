@@ -12,7 +12,7 @@
   #include <GLES/gl.h>
 #else
 extern "C" {
-   #include "gl2d.h"
+   #include "egg2d.h"
 }
 #endif
 

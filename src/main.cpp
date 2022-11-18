@@ -35,7 +35,7 @@
 //	SDL_Window* window;
 //};
 
-void init_renderer(int originX, int originY, int width, int height) {
+void initViewPort(int originX, int originY, int width, int height) {
 #if 0
 	glViewport(originX, originY, width, height);
 	
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
 		Render();
 	}
 
-    GL2D_Quit();
+    EGG_Quit();
 //	SDL_DestroyWindow(window);
 //	SDL_Quit();
 	return 0;
