@@ -28,8 +28,11 @@ int createWindow(const char* title);
 
 void clearScreen();
 
-GLuint GetGlowImage();
+GLuint loadShader(GLenum type, const char *shaderSrc);
 
+GLuint loadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc);
+
+GLuint GetGlowImage();
 
 void updateWindow();
 void EGG_Quit();

@@ -98,7 +98,7 @@ int createWindow(const char* title) {
 
     SDL_GL_SetSwapInterval(1);
 
-    window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+    window = SDL_CreateWindow(title, 0, 0,
                               g_targetWidth, g_targetHeight, SDL_WINDOW_OPENGL);
     if (!window) {
         fprintf(stderr, "SDL_CreateWindow error: %s\n", SDL_GetError());
@@ -154,9 +154,102 @@ int createWindow(const char* title) {
 }
 
 void EGG_Quit() {
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
+
+GLuint loadShader(GLenum type, const char* shaderSrc) {
+    GLuint shader;
+    GLint compiled;
+
+    shader = glCreateShader(type);
+
+    if (shader == 0) {
+        return 0;
+    }
+
+    glShaderSource(shader, 1, &shaderSrc, NULL);
+
+    // Compile the shader
+    glCompileShader(shader);
+
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+
+    if (!compiled) {
+        GLint infoLen = 0;
+
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
+
+        if ( infoLen > -1 ) {
+            char *infoLog = (char*) malloc(sizeof(char) * infoLen);
+            glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
+            fprintf(stderr, "%s", infoLog);
+
+            free(infoLog);
+        }
+        glDeleteShader(shader);
+        return 0;
+    }
+
+    return shader;
+}
+
+GLuint loadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc) {
+    GLint linked;
+    // Load shaders
+    GLuint vertexShaderObj = loadShader(GL_VERTEX_SHADER, vertexShaderSrc);
+
+    if (vertexShaderObj == 0) {
+        fprintf(stderr, "There's an error compiling the vertexShaderObj shader.\n");
+        return 0;
+    }
+
+    GLuint fragmentShaderObj = loadShader(GL_FRAGMENT_SHADER, fragShaderSrc);
+
+    if (fragmentShaderObj == 0) {
+        fprintf(stderr, "There's an error compiling the fragmentShaderObj shader.\n");
+        return 0;
+    }
+
+    // Combine shaders into shaderProgramObj
+    GLuint shaderProgramObj = glCreateProgram();
+
+    if (shaderProgramObj == 0) {
+        fprintf(stderr, "There's an error creating shader shaderProgramObj.\n");
+        return 0;
+    }
+
+    glAttachShader(shaderProgramObj, vertexShaderObj);
+    glAttachShader(shaderProgramObj, fragmentShaderObj);
+    // Link the shaderProgramObj
+    glLinkProgram(shaderProgramObj);
+
+    glGetProgramiv(shaderProgramObj, GL_LINK_STATUS, &linked);
+
+    if (!linked) {
+        GLint infoLen = 0;
+
+        glGetProgramiv(shaderProgramObj, GL_INFO_LOG_LENGTH, &infoLen);
+
+        if (infoLen > -1) {
+            char *infoLog = (char *)malloc(sizeof(char) * infoLen);
+
+            glGetProgramInfoLog(shaderProgramObj, infoLen, NULL, infoLog);
+            fprintf(stderr, "Error linking shaderProgramObj\n%s\n", infoLog);
+
+            free(infoLog);
+        }
+        glDeleteProgram(shaderProgramObj);
+        return 0;
+    }
+
+    glDeleteShader(vertexShaderObj);
+    glDeleteShader(fragmentShaderObj);
+
+    return shaderProgramObj;
+}
+
 
 GLuint GetGlowImage() {
 

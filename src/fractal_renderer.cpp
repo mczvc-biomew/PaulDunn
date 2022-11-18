@@ -78,97 +78,6 @@ GLint samplerLoc;
 }; using namespace GLContext;
 
 
-static GLuint loadShader(GLenum type, const char* shaderSrc) {
-    GLuint shader;
-    GLint compiled;
-
-    shader = glCreateShader(type);
-
-    if (shader == 0) {
-        return 0;
-    }
-
-    glShaderSource(shader, 1, &shaderSrc, NULL);
-
-    // Compile the shader
-    glCompileShader(shader);
-
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-
-    if (!compiled) {
-        GLint infoLen = 0;
-
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
-
-        if ( infoLen > -1 ) {
-            char *infoLog = (char*) malloc(sizeof(char) * infoLen);
-            glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
-            fprintf(stderr, "%s", infoLog);
-
-            free(infoLog);
-        }
-        glDeleteShader(shader);
-        return 0;
-    }
-
-    return shader;
-}
-
-static GLuint loadProgram(const char *vertexShaderSrc, const char *fragShaderSrc) {
-    GLint linked;
-    // Load shaders
-    GLuint vertex = loadShader(GL_VERTEX_SHADER, vertexShaderSrc);
-
-    if (vertex == 0) {
-        fprintf(stderr, "There's an error compiling the vertex shader.\n");
-        return 0;
-    }
-
-    GLuint fragment = loadShader(GL_FRAGMENT_SHADER, fragShaderSrc);
-
-    if (fragment == 0) {
-        fprintf(stderr, "There's an error compiling the fragment shader.\n");
-        return 0;
-    }
-
-    // Combine shaders into program
-    GLuint program = glCreateProgram();
-
-    if (program == 0) {
-        fprintf(stderr, "There's an error creating shader program.\n");
-        return 0;
-    }
-
-    glAttachShader(program, vertex);
-    glAttachShader(program, fragment);
-    // Link the program
-    glLinkProgram(program);
-
-    glGetProgramiv(program, GL_LINK_STATUS, &linked);
-
-    if (!linked) {
-        GLint infoLen = 0;
-
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLen);
-
-        if (infoLen > -1) {
-            char *infoLog = (char *)malloc(sizeof(char) * infoLen);
-
-            glGetProgramInfoLog(program, infoLen, NULL, infoLog);
-            fprintf(stderr, "Error linking program\n%s\n", infoLog);
-
-            free(infoLog);
-        }
-        glDeleteProgram(program);
-        return 0;
-    }
-
-    glDeleteShader(vertex);
-    glDeleteShader(fragment);
-
-    return program;
-}
-
 
 static void enableTexturing() {
 
@@ -183,9 +92,9 @@ static void enableTexturing() {
     glPointSize(80);
 }
 
-void rendererInit()
+void RendererInit()
 {
-    GLuint program = loadProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+    GLuint program = loadShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     if (program == 0) {
         SDL_Quit();
     }
@@ -236,7 +145,7 @@ void Render()
 
     }
     t += 1.0/60.0;
-    
+
 	glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
     updateWindow();
 

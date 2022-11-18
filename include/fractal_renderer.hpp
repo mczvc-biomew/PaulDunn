@@ -16,7 +16,7 @@ extern "C" {
 }
 #endif
 
-void rendererInit();
+void RendererInit();
 void renderInit3();
 void Render();
 
