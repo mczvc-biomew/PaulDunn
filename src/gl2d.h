@@ -112,6 +112,8 @@ void glBlendMode(const GL2D_BLEND_MODE mode);
 
 void clearScreen();
 
+GLuint GetGlowImage();
+
 void glLineGlow( const double x1, const double y1,
                  const double x2, const double y2,
                  const double width, const GLfloat r,
