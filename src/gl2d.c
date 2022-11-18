@@ -535,69 +535,69 @@ void glLineGlow(const double x1, const double y1,
 //        textureIndex + 12 > MAX_BATCH_DRAW*2*6) {
 //        flush();
 //    }
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 0] = lx1;
-//    vertexes[vertexIndex + 1] = ly1;
+//    vertexData[vertexIndex + 0] = lx1;
+//    vertexData[vertexIndex + 1] = ly1;
 //    textures[textureIndex + 0] = 0.5f;
 //    textures[textureIndex + 1] = 0.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 2] = lx2;
-//    vertexes[vertexIndex + 3] = ly2;
+//    vertexData[vertexIndex + 2] = lx2;
+//    vertexData[vertexIndex + 3] = ly2;
 //    textures[textureIndex + 2] = 0.5f;
 //    textures[textureIndex + 3] = 1.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 4] = lx3;
-//    vertexes[vertexIndex + 5] = ly3;
+//    vertexData[vertexIndex + 4] = lx3;
+//    vertexData[vertexIndex + 5] = ly3;
 //    textures[textureIndex + 4] = 0.5f;
 //    textures[textureIndex + 5] = 1.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 6] = lx1;
-//    vertexes[vertexIndex + 7] = ly1;
+//    vertexData[vertexIndex + 6] = lx1;
+//    vertexData[vertexIndex + 7] = ly1;
 //    textures[textureIndex + 6] = 0.5f;
 //    textures[textureIndex + 7] = 0.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 8] = lx3;
-//    vertexes[vertexIndex + 9] = ly3;
+//    vertexData[vertexIndex + 8] = lx3;
+//    vertexData[vertexIndex + 9] = ly3;
 //    textures[textureIndex + 8] = 0.5f;
 //    textures[textureIndex + 9] = 1.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 10] = lx4;
-//    vertexes[vertexIndex + 11] = ly4;
+//    vertexData[vertexIndex + 10] = lx4;
+//    vertexData[vertexIndex + 11] = ly4;
 //    textures[textureIndex + 10] = 0.5f;
 //    textures[textureIndex + 11] = 0.0f;
 //
@@ -654,69 +654,69 @@ void glLineGlow(const double x1, const double y1,
 //        textureIndex + 12 > MAX_BATCH_DRAW*2*6) {
 //        flush();
 //    }
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 0] = lx1;
-//    vertexes[vertexIndex + 1] = ly1;
+//    vertexData[vertexIndex + 0] = lx1;
+//    vertexData[vertexIndex + 1] = ly1;
 //    textures[textureIndex + 0] = 0.5f;
 //    textures[textureIndex + 1] = 0.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 2] = lx5;
-//    vertexes[vertexIndex + 3] = ly5;
+//    vertexData[vertexIndex + 2] = lx5;
+//    vertexData[vertexIndex + 3] = ly5;
 //    textures[textureIndex + 2] = 1.0f;
 //    textures[textureIndex + 3] = 0.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 4] = lx6;
-//    vertexes[vertexIndex + 5] = ly6;
+//    vertexData[vertexIndex + 4] = lx6;
+//    vertexData[vertexIndex + 5] = ly6;
 //    textures[textureIndex + 4] = 1.0f;
 //    textures[textureIndex + 5] = 1.0f;
 //
-////    colors[colorIndex + 0] = r;
-////    colors[colorIndex + 1] = g;
-////    colors[colorIndex + 2] = b;
-////    colors[colorIndex + 3] = a;
+////    colorData[colorIndex + 0] = r;
+////    colorData[colorIndex + 1] = g;
+////    colorData[colorIndex + 2] = b;
+////    colorData[colorIndex + 3] = a;
 ////    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 6] = lx1;
-//    vertexes[vertexIndex + 7] = ly1;
+//    vertexData[vertexIndex + 6] = lx1;
+//    vertexData[vertexIndex + 7] = ly1;
 //    textures[textureIndex + 6] = 0.5f;
 //    textures[textureIndex + 7] = 0.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 8] = lx6;
-//    vertexes[vertexIndex + 9] = ly6;
+//    vertexData[vertexIndex + 8] = lx6;
+//    vertexData[vertexIndex + 9] = ly6;
 //    textures[textureIndex + 8] = 1.0f;
 //    textures[textureIndex + 9] = 1.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 10] = lx2;
-//    vertexes[vertexIndex + 11] = ly2;
+//    vertexData[vertexIndex + 10] = lx2;
+//    vertexData[vertexIndex + 11] = ly2;
 //    textures[textureIndex + 10] = 0.5f;
 //    textures[textureIndex + 11] = 1.0f;
 //
@@ -749,69 +749,69 @@ void glLineGlow(const double x1, const double y1,
 //        textureIndex + 12 > MAX_BATCH_DRAW*2*6) {
 //        flush();
 //    }
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 0] = lx4;
-//    vertexes[vertexIndex + 1] = ly4;
+//    vertexData[vertexIndex + 0] = lx4;
+//    vertexData[vertexIndex + 1] = ly4;
 //    textures[textureIndex + 0] = 0.5f;
 //    textures[textureIndex + 1] = 0.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 2] = lx3;
-//    vertexes[vertexIndex + 3] = ly3;
+//    vertexData[vertexIndex + 2] = lx3;
+//    vertexData[vertexIndex + 3] = ly3;
 //    textures[textureIndex + 2] = 0.5f;
 //    textures[textureIndex + 3] = 1.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 4] = lx6;
-//    vertexes[vertexIndex + 5] = ly6;
+//    vertexData[vertexIndex + 4] = lx6;
+//    vertexData[vertexIndex + 5] = ly6;
 //    textures[textureIndex + 4] = 1.0f;
 //    textures[textureIndex + 5] = 1.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 6] = lx4;
-//    vertexes[vertexIndex + 7] = ly4;
+//    vertexData[vertexIndex + 6] = lx4;
+//    vertexData[vertexIndex + 7] = ly4;
 //    textures[textureIndex + 6] = 0.5f;
 //    textures[textureIndex + 7] = 0.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 8] = lx6;
-//    vertexes[vertexIndex + 9] = ly6;
+//    vertexData[vertexIndex + 8] = lx6;
+//    vertexData[vertexIndex + 9] = ly6;
 //    textures[textureIndex + 8] = 1.0f;
 //    textures[textureIndex + 9] = 1.0f;
 //
-//    colors[colorIndex + 0] = r;
-//    colors[colorIndex + 1] = g;
-//    colors[colorIndex + 2] = b;
-//    colors[colorIndex + 3] = a;
+//    colorData[colorIndex + 0] = r;
+//    colorData[colorIndex + 1] = g;
+//    colorData[colorIndex + 2] = b;
+//    colorData[colorIndex + 3] = a;
 //    colorIndex += 4;
 //
-//    vertexes[vertexIndex + 10] = lx5;
-//    vertexes[vertexIndex + 11] = ly5;
+//    vertexData[vertexIndex + 10] = lx5;
+//    vertexData[vertexIndex + 11] = ly5;
 //    textures[textureIndex + 10] = 1.0f;
 //    textures[textureIndex + 11] = 0.0f;
 //

@@ -129,8 +129,8 @@ int main(int argc, char *argv[])
     createWindow("Bubble Universe");
 	
 	// Initialize triangle renderer
-//	renderer_init();
-    renderInit3();
+	rendererInit();
+//    renderInit3();
 
     unsigned int lastTick = 0;
 
@@ -146,12 +146,11 @@ int main(int argc, char *argv[])
         		paused = !paused;
         	} 
 		}
-        unsigned int currentTick = SDL_GetTicks();
-        double deltaTime = (double) (currentTick - lastTick) / 1000.0;
-        lastTick = currentTick;
+//        unsigned int currentTick = SDL_GetTicks();
+//        double deltaTime = (double) (currentTick - lastTick) / 1000.0;
+//        lastTick = currentTick;
 
-        Update(deltaTime);
-		// Draw triangle
+		// Draw fractal
 		Render();
 	}
 

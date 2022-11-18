@@ -16,9 +16,8 @@ extern "C" {
 }
 #endif
 
-void renderer_init();
+void rendererInit();
 void renderInit3();
-void Update(float deltaTime);
 void Render();
 
 #endif

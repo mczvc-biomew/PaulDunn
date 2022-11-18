@@ -47,8 +47,8 @@ namespace /* STD */ {
 
 
 namespace GLContext {
-static GLfloat vertexes[n << 1];
-static GLfloat colors[n << 2];
+static GLfloat vertexData[n * 2];
+static GLfloat colorData[n * 4];
 
 // OpenGL ES 2.0 uses shaders
 const char *VERTEX_SHADER = "#version 330 core\n"
@@ -57,9 +57,9 @@ const char *VERTEX_SHADER = "#version 330 core\n"
 	"varying vec4 v_color;\n"
 	"void main()\n"
 	"{\n"
-	"gl_Position = vec4(a_position.xyz, 1.0);\n"
-	"gl_PointSize = 1.0;\n"
-	"v_color = a_color;\n"
+	"   gl_Position = vec4(a_position.xyz, 1.0);\n"
+	"   gl_PointSize = 1.0;\n"
+	"   v_color = a_color;\n"
 	"}";
 
 const char *FRAGMENT_SHADER = "#version 330 core\n"
@@ -67,7 +67,7 @@ const char *FRAGMENT_SHADER = "#version 330 core\n"
 	"varying vec4 v_color;\n"
 	"void main()\n"
 	"{\n"
-	"gl_FragColor = v_color;\n"
+	"   gl_FragColor = v_color;\n"
 	"}";
 
 const char *VERTEX_SHADER_ES3 = "#version 330 core\n"
@@ -123,38 +123,10 @@ float particleData[NUM_PARTICLES * PARTICLE_SIZE];
 
 float time;
 
+auto start = clock_now();
+
 }; using namespace GLContext;
 
-
-void renderer_init()
-{
-	// Load shaders
-	GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex, 1, &VERTEX_SHADER, NULL);
-	glCompileShader(vertex);
-
-	GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment, 1, &FRAGMENT_SHADER, NULL);
-	glCompileShader(fragment);
-
-	// Combine shaders into program
-	GLuint program = glCreateProgram();
-	glAttachShader(program, vertex);
-	glAttachShader(program, fragment);
-	glLinkProgram(program);
-	// Use it
-	glUseProgram(program);
-
-	// Point position attribute to vertexes
-	GLint position = glGetAttribLocation(program, "a_position");
-	glEnableVertexAttribArray(position);
-	glVertexAttribPointer(position, 2, GL_FLOAT, GL_FALSE, 0, vertexes);
-	// Point color attribute to colors
-	GLint color = glGetAttribLocation(program, "a_color");
-	glEnableVertexAttribArray(color);
-	glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, colors);
-
-}
 
 static GLuint loadShader(GLenum type, const char* shaderSrc) {
     GLuint shader;
@@ -185,7 +157,7 @@ static GLuint loadShader(GLenum type, const char* shaderSrc) {
 
             free(infoLog);
         }
-//        glDeleteShader(shader);
+        glDeleteShader(shader);
         return 0;
     }
 
@@ -196,9 +168,6 @@ static GLuint loadProgram(const char *vertexShaderSrc, const char *fragShaderSrc
     GLint linked;
     // Load shaders
     GLuint vertex = loadShader(GL_VERTEX_SHADER, vertexShaderSrc);
-//            glCreateShader(GL_VERTEX_SHADER);
-//    glShaderSource(vertex, 1, &VERTEX_SHADER_ES3, NULL);
-//    glCompileShader(vertex);
 
     if (vertex == 0) {
         fprintf(stderr, "There's an error compiling the vertex shader.\n");
@@ -206,9 +175,7 @@ static GLuint loadProgram(const char *vertexShaderSrc, const char *fragShaderSrc
     }
 
     GLuint fragment = loadShader(GL_FRAGMENT_SHADER, fragShaderSrc);
-//            glCreateShader(GL_FRAGMENT_SHADER);
-//    glShaderSource(fragment, 1, &FRAGMENT_SHADER_ES3, NULL);
-//    glCompileShader(fragment);
+
     if (fragment == 0) {
         fprintf(stderr, "There's an error compiling the fragment shader.\n");
         return 0;
@@ -246,11 +213,8 @@ static GLuint loadProgram(const char *vertexShaderSrc, const char *fragShaderSrc
         return 0;
     }
 
-//    glDeleteShader(vertex);
-//    glDeleteShader(fragment);
-
-    // Use it
-    glUseProgram(program);
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
 
     return program;
 }
@@ -304,92 +268,24 @@ void renderInit3() {
     loadParticles();
 }
 
-void Update(float deltaTime)
+void rendererInit()
 {
-    if (paused) return;
-    //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-//    clearScreen();
-
-//	for (int i = 0, j = 0; i < n; i++, j+=t)
-//	{
-//	    // PaulDunn, creator of SpecBasic
-//		const double u = sin(i+y) + sin(j / (n * M_PI) + x);
-//		const double v = cos(i+y) + cos(j / (n * M_PI) + x);
-//		x = u + t;
-//		y = v + t;
-//
-//		const Color color = Color::createHue(cos(cos(i) - sin(t)));
-//
-//		const int jj = i*2;
-//        const double v1 = static_cast<GLfloat>((u - minX + 0.5) * daw - 0.25);
-//        const double v2 = static_cast<GLfloat>((v - minY + 0.5) * dah - 0.25);
-//
-//		vertexes[jj + 0] = v1;
-//		vertexes[jj + 1] = v2;
-//
-//		colors[i*4 + 0] = static_cast<GLfloat>(color.r);
-//		colors[i*4 + 1] = static_cast<GLfloat>(color.g);
-//		colors[i*4 + 2] = static_cast<GLfloat>(color.b);
-//		colors[i*4 + 3] = 99.0/255.0;
-//
-//    }
-//	t += 1.0/60.0;
-
-    GLContext::time += deltaTime;
-
-    if (GLContext::time >= 1.0f) {
-
-
-        GLContext::time = 0.0f;
-
-        // PaulDunn, creator of SpecBasic
-        for (int i = 0, j = 0; i < NUM_PARTICLES; i++, j+=t)
-        {
-            float *particleDataP = &particleData[i * PARTICLE_SIZE];
-
-            // PaulDunn, creator of SpecBasic
-            const double u = sin(i+y) + sin(j / (NUM_PARTICLES * M_PI) + x);
-            const double v = cos(i+y) + cos(j / (NUM_PARTICLES * M_PI) + x);
-            x = u + t;
-            y = v + t;
-
-            //const Color color = Color::createHue(cos(cos(i) - sin(t)));
-
-            // Lifetime of a particle
-            (*particleDataP++) = ((float)(rand() % 10000) / 10000.0f);
-
-            const auto v1 = static_cast<float>((u - minX + 0.5f) * daw - 0.25f);
-            const auto v2 = static_cast<float>((v - minY + 0.5f) * dah - 0.25f);
-
-            const double w = sin(i*NUM_PARTICLES+y) + sin(j*NUM_PARTICLES / (NUM_PARTICLES * M_PI) + x);
-            const double z = cos(i*NUM_PARTICLES+y) + cos(j*NUM_PARTICLES / (NUM_PARTICLES * M_PI) + x);
-
-            const auto v3 = static_cast<float>((w - minX + 0.5f) * daw - 0.25f);
-            const auto v4 = static_cast<float>((z - minY + 0.5f) * dah - 0.25f);
-            // End position of a particle
-            (*particleDataP++) = v3;
-            (*particleDataP++) = v4;
-            (*particleDataP++) = ( (float)(rand() % 10000)/ 5000.0f) - 1.0f;
-
-            // Start position of a particle
-            (*particleDataP++) = v1;
-            (*particleDataP++) = v2;
-//        (*particleDataP++) = ( (float)(rand() % 10000) / 40000.0f) - 0.125f;
-//        (*particleDataP++) = ( (float)(rand() % 10000) / 40000.0f) - 0.125f;
-            (*particleDataP++) = ( (float)(rand() % 10000) / 40000.0f) - 0.125f;
-
-            /*colors[i*4 + 0] = static_cast<GLfloat>(color.r);
-            colors[i*4 + 1] = static_cast<GLfloat>(color.g);
-            colors[i*4 + 2] = static_cast<GLfloat>(color.b);
-            colors[i*4 + 3] = 99.0/255.0;*/
-
-        }
-
+    GLuint program = loadProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+    if (program == 0) {
+        SDL_Quit();
     }
-    t += 1.0/60.0;
+    // Use it
+    glUseProgram(program);
 
-    glUniform1f(timeLoc, GLContext::time);
+    // Point position attribute to vertexData
+    GLint position = glGetAttribLocation(program, "a_position");
+    glEnableVertexAttribArray(position);
+    glVertexAttribPointer(position, 2, GL_FLOAT, GL_FALSE, 0, vertexData);
+    // Point color attribute to colorData
+    GLint color = glGetAttribLocation(program, "a_color");
+    glEnableVertexAttribArray(color);
+    glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, colorData);
+
 }
 
 void Render()
@@ -397,10 +293,44 @@ void Render()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, GetGlowImage());
+    if (t >= 23.1833 && !paused) {
+        paused = true;
+        auto end = clock_now();
+        auto elapsed = chrono::duration_cast<chrono::milliseconds>(end - start).count();
+        printf("Time elapse: %d\n", elapsed); // 42_996 with clearScreen, without, 44_590
+    }
+    if (paused) return;
+    //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+//    clearScreen();
 
-    glUniform1i(samplerLoc, 0);
+//     When t starts with 9.0 and it completes at t = 23.1833..
+//  When n = 200000;
+//  Using glBlendFunc(GL_SRC_ALPHA, GL_ONE) with glEnable(GL_BLEND)
+    for (int i = 0, j = 0; i < n; i++, j+=t)
+    {
+        // PaulDunn, creator of SpecBasic
+        const double u = sin(i+y) + sin(j / (n * M_PI) + x);
+        const double v = cos(i+y) + cos(j / (n * M_PI) + x);
+        x = u + t;
+        y = v + t;
+
+        const Color color = Color::createHue(cos(cos(i) - sin(t)));
+
+        const int jj = i*2;
+        const double v1 = static_cast<GLfloat>((u - minX + 0.5) * daw - 0.25);
+        const double v2 = static_cast<GLfloat>((v - minY + 0.5) * dah - 0.25);
+
+        vertexData[jj + 0] = v1;
+        vertexData[jj + 1] = v2;
+
+        colorData[i * 4 + 0] = static_cast<GLfloat>(color.r);
+        colorData[i * 4 + 1] = static_cast<GLfloat>(color.g);
+        colorData[i * 4 + 2] = static_cast<GLfloat>(color.b);
+        colorData[i * 4 + 3] = 99.0 / 255.0;
+
+    }
+    t += 1.0/60.0;
 	glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
     updateWindow();
 
