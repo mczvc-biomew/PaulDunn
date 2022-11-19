@@ -66,14 +66,20 @@ const char *VERTEX_SHADER =
 const char *FRAGMENT_SHADER =
 	"precision mediump float;\n"
 	"varying vec4 v_color;\n"
-#if defined(__ANDROID__)
+#if !defined(__ANDROID__)
     "layout(location = 0) out vec4 fragColor;\n"
 #endif
     "uniform float u_sensitivity;\n"
     "uniform sampler2D s_texture;\n"
 	"void main()\n"
 	"{\n"
-    "   vec4 texColor = texture(s_texture, gl_PointCoord);\n"
+    "   vec4 texColor = "
+#if !defined(__ANDROID__)
+    "texture"
+#else
+    "texture2D"
+#endif
+    "(s_texture, gl_PointCoord);\n"
 #if defined(__ANDROID__)
     "   gl_FragColor = vec4(v_color.rgb, u_sensitivity) * texColor.bgra;\n"
 #else
