@@ -8,24 +8,21 @@
 #ifdef HAVE_OPENGLES2
 #include "fractal_renderer.hpp"
 
-#define check_return(x) if ((x) != 0) return 1
-#define GL_CHECK(x) \ 
-    x; \
-    { \
-      GLenum glError = glGetError(); \
-      if(glError != GL_NO_ERROR) { \
-        SDL_Log("glGetError() = %i (0x%.8x) at line %i\n", glError, glError, __LINE__); \
-        return 1; \
-      } \
-    }
-
+/**
+ * SDL2 on Android and Linux. <li> Cxxdroid </li>
+ * <li> CMake </li> <li> SDL2 </li> <li> SDL2_image </li> <li> GLAD </li>
+ * <li> Relminator: <u>http://rel.phatcode.net<u> </li> <li> PaulDunn: SpecBasic </li>
+ * <li> Jetbrain's Clion <br>
+ * ### [mczvc-biomew] \<czarm827\@protonmail.com\><br>
+ * Meldencio Czarlemagne Veras Corrales, BSCS
+ * <li> Easy Game Graphics, Egg Co. </li>
+ */
 //namespace {
 
 	int g_targetWidth = 1920;
 	int g_targetHeight = 1100;
 	
-	float aspect;
-	double g_targetAspect = g_targetWidth / static_cast<float>(g_targetHeight);
+	double g_targetAspect = g_targetWidth / static_cast<double>(g_targetHeight);
 
 //};
 
