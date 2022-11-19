@@ -64,7 +64,9 @@ static void init2D() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+#if !defined(__ANDROID__)
     glClearDepth(1.0);                       //'Set Depth buffer to 1(z-Buffer)
+#endif
     glDisable(GL_DEPTH_TEST);                //'Disable Depth Testing so that our z-buffer works
 
 #if !defined(__ANDROID__)
@@ -82,14 +84,7 @@ static void init2D() {
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
-#if !defined(GLES2)
-    glDisable(GL_TEXTURE_1D);
-#endif
     glDisable(GL_DITHER);
-
-#if !defined(GLES2)
-    glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
-#endif
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
