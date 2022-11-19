@@ -28,21 +28,9 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 add_definitions(-DGLES2)
 add_executable(${PROJECT_NAME} ${SRCS})
 
-if (NOT CMAKE_SYSTEM_NAME MATCHES "Android")
-	find_package(OpenGL REQUIRED COMPONENTS OpenGL)
-endif()
-
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 
-if (NOT CMAKE_SYSTEM_NAME MATCHES "Android")
-	include_directories(${SDL_IMAGE_INCLUDE_DIR} ${OPENGL_INCLUDE_DIRS})
-else()
-	include_directories(${SDL_IMAGE_INCLUDE_DIR})
-endif()
+include_directories(${SDL_IMAGE_INCLUDE_DIR})
 
-if (NOT CMAKE_SYSTEM_NAME MATCHES "Android")
-	target_link_libraries(${PROJECT_NAME} SDL2::SDL2 SDL2_image ${OPENGL_LIBRARIES})
-else()
-	target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} SDL2_image)
-endif()
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} SDL2_image)
