@@ -11,13 +11,10 @@
 #elif defined(GLES1) && defined(__ANDROID__)
   #include <GLES/gl.h>
 #else
-extern "C" {
-   #include "egg2d.h"
-}
+  #include "egg2d.h"
 #endif
 
 void RendererInit();
-void renderInit3();
 void Render();
 
 #endif
