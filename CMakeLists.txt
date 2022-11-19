@@ -1,3 +1,4 @@
+#Cxxdroid-binary: PaulDunn
 if (CMAKE_SYSTEM_NAME MATCHES "Android")
 	cmake_minimum_required(VERSION 3.7.2)
 else()
@@ -27,21 +28,21 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 add_definitions(-DGLES2)
 add_executable(${PROJECT_NAME} ${SRCS})
 
-if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+if (NOT CMAKE_SYSTEM_NAME MATCHES "Android")
 	find_package(OpenGL REQUIRED COMPONENTS OpenGL)
 endif()
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 
-if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+if (NOT CMAKE_SYSTEM_NAME MATCHES "Android")
 	include_directories(${SDL_IMAGE_INCLUDE_DIR} ${OPENGL_INCLUDE_DIRS})
-elseif(CMAKE_SYSTEM_NAME MATCHES "Android")
+else()
 	include_directories(${SDL_IMAGE_INCLUDE_DIR})
 endif()
 
-if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+if (NOT CMAKE_SYSTEM_NAME MATCHES "Android")
 	target_link_libraries(${PROJECT_NAME} SDL2::SDL2 SDL2_image ${OPENGL_LIBRARIES})
-elseif(CMAKE_SYSTEM_NAME MATCHES "Android")
+else()
 	target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} SDL2_image)
 endif()
