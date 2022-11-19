@@ -56,9 +56,7 @@ const char *VERTEX_SHADER =
 	"varying vec4 v_color;\n"
 	"void main()\n"
 	"{\n"
-#if defined(__ANDROID__)
-    "gl_PointSize = 64.0;\n"
-#endif
+    "   gl_PointSize = 64.0;\n"
 	"   gl_Position = vec4(a_position.xyz, 1.0);\n"
 	"   v_color = a_color;\n"
 	"}";
@@ -66,25 +64,12 @@ const char *VERTEX_SHADER =
 const char *FRAGMENT_SHADER =
 	"precision mediump float;\n"
 	"varying vec4 v_color;\n"
-#if !defined(__ANDROID__)
-    "layout(location = 0) out vec4 fragColor;\n"
-#endif
     "uniform float u_sensitivity;\n"
     "uniform sampler2D s_texture;\n"
 	"void main()\n"
 	"{\n"
-    "   vec4 texColor = "
-#if !defined(__ANDROID__)
-    "texture"
-#else
-    "texture2D"
-#endif
-    "(s_texture, gl_PointCoord);\n"
-#if defined(__ANDROID__)
+    "   vec4 texColor = texture2D(s_texture, gl_PointCoord);\n"
     "   gl_FragColor = vec4(v_color.rgb, u_sensitivity) * texColor.bgra;\n"
-#else
-    "   fragColor = vec4(v_color.rgb, u_sensitivity) * texColor.bgra;\n"
-#endif
 	"}";
 
 GLint samplerLoc;
@@ -105,9 +90,6 @@ static void enableTexturing() {
     glUniform1i(samplerLoc, 0);
     glUniform1f(sensitivityLoc, 99.0f / 255.0f);
 
-#if !defined(__ANDROID__)
-    glPointSize(64);
-#endif
 }
 
 void RendererInit()
