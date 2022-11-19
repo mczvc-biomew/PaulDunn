@@ -1,17 +1,15 @@
 /**
- * @file egg2d.c
+ * @file egg2d.c\n
  * Easy Game Graphics 0.1
  *
- * [mczvc] (2022) <czarm827@protonmail.com>
+ * [mczvc] (2022) czarm827\@protonmail.com<br><br>
  * Meldencio Czarlemagne Veras Corrales, CS (2nd year)
  *
- * https://github.com/mczvc827
+ * <li>https://github.com/mczvc827
  */
 
 #include "egg2d.h"
 #include <SDL2/SDL_image.h>
-
-static GLuint gCurrentTexture = 0;
 
 static SDL_Surface *screenSurface = NULL;
 static SDL_Window *window = NULL;
@@ -26,7 +24,6 @@ static SDL_Renderer *renderer = NULL;
  */
 static void initViewPort(int originX, int originY, int width, int height) {
     glViewport(originX, originY, width, height);
-    gCurrentTexture = 0;
 }
 
 /**
@@ -39,29 +36,29 @@ static void init2D() {
     glClearDepth(1.0);                       //'Set Depth buffer to 1(z-Buffer)
     glDisable(GL_DEPTH_TEST);                //'Disable Depth Testing so that our z-buffer works
 
-    // compare each incoming pixel z value with the z value present in the depth buffer
-    // LEQUAL means than pixel is drawn if the incoming z value is less than
-    //or equal to the stored z value
+#if !defined(__ANDROID__)
+//  Compare each incoming pixel z value with the z value present in the depth buffer.
+//  LEQUAL means than pixel is drawn if the incoming z value is less than
+//  or equal to the stored z value.
     glDepthFunc(GL_LEQUAL);
+#endif
 
-//    'have one or more material parameters track the current color
-//    'Material is your 3d model
-//    glEnable(GL_COLOR_MATERIAL);
-
-    //Enable Texturing
+//  Enable Texturing
     glEnable(GL_TEXTURE_2D);
 
-    glPolygonMode(GL_FRONT, GL_FILL);
-
-//    'Disable Backface culling
+//  'Disable Backface culling
     glDisable(GL_CULL_FACE);
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
+#if !defined(GLES2)
     glDisable(GL_TEXTURE_1D);
+#endif
     glDisable(GL_DITHER);
 
+#if !defined(GLES2)
     glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
+#endif
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -79,6 +76,12 @@ static void init2D() {
  */
 int createWindow(const char* title) {
 
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        fprintf(stderr, "SDL_Init error: %s\n", SDL_GetError());
+        SDL_Quit();
+        return -1;
+    }
+
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
@@ -86,17 +89,13 @@ int createWindow(const char* title) {
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        fprintf(stderr, "SDL_Init error: %s\n", SDL_GetError());
-        SDL_Quit();
-        return -1;
-    }
-
+#if !defined(__ANDROID__)
     SDL_GL_SetSwapInterval(1);
+#endif
 
     window = SDL_CreateWindow(title, 0, 0,
                               g_targetWidth, g_targetHeight, SDL_WINDOW_OPENGL);
@@ -106,17 +105,21 @@ int createWindow(const char* title) {
         return -1;
     }
 
+#if !defined(__ANDROID__)
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+#endif
 
     // We will not actually need a context created, but we should create one
     SDL_GLContext gl = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl);
 
+#if !defined(__ANDROID__)
     // Initialize GLAD
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         fprintf(stderr, "Cannot load GLAD\n");
         return -1;
     }
+#endif
 
     SDL_GetWindowSize(window, &g_actualWidth, &g_actualHeight);
 
@@ -142,11 +145,13 @@ int createWindow(const char* title) {
     printf("Renderer: %s\n", glGetString(GL_RENDERER));
     printf("Version:  %s\n", glGetString(GL_VERSION));
 
+#if !defined(__ANDROID__)
     screenSurface = SDL_GetWindowSurface(window);
     if (!screenSurface) {
         fprintf(stderr, "could not get window surface: %s\n", SDL_GetError());
         return -1;
     }
+#endif
 
     init2D();
 
@@ -250,7 +255,11 @@ GLuint loadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc)
     return shaderProgramObj;
 }
 
-
+/**
+ * REL's Glow-Image.
+ * <li><u>https://rel.phatcode.net</li>
+ * @return OpenGL texture ID
+ */
 GLuint GetGlowImage() {
 
     static GLuint textureID = 0;
@@ -436,7 +445,7 @@ GLuint GetGlowImage() {
         glBindTexture(GL_TEXTURE_2D, textureID);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, IMAGE_WIDTH, IMAGE_HEIGHT,
-                     0, GL_BGRA, GL_UNSIGNED_BYTE, image_array + 8);
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, image_array + 8);
 
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -450,11 +459,17 @@ GLuint GetGlowImage() {
     return textureID;
 }
 
-void clearScreen () {
+/**
+ * Clears the screen with black.
+ */
+void ClearScreen () {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void updateWindow() {
+/**
+ * Updates and synchronize the window.
+ */
+void UpdateWindow() {
     SDL_GL_SwapWindow(window);
 }

@@ -6,9 +6,9 @@
 
 #include <SDL2/SDL.h>
 
-#if defined(GLES2) && defined(ANDROID)
+#if defined(GLES2) && defined(__ANDROID__)
   #include <GLES2/gl2.h>
-#elif defined(GLES1) && defined(ANDROID)
+#elif defined(GLES1) && defined(__ANDROID__)
   #include <GLES/gl.h>
 #else
 extern "C" {
