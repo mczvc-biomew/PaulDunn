@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
 	bool quit = createWindow("Bubble Universe") != 0;
 
 	RendererInit();
-//    renderInit3();
 
     unsigned int lastTick = 0;
 
@@ -43,17 +42,14 @@ int main(int argc, char *argv[])
 		while (SDL_PollEvent(&event)) {
 			// Process events so the app doesn't hang
 			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-				SDL_Log("Quitting..");
+				SDL_Log("Quitting...");
         		quit = true;
         	} else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_p) {
         		paused = !paused;
         	} 
 		}
-//        unsigned int currentTick = SDL_GetTicks();
-//        double deltaTime = (double) (currentTick - lastTick) / 1000.0;
-//        lastTick = currentTick;
 
-		// Draw the fractal
+		// Render fractal
 		Render();
 	}
 
@@ -65,7 +61,7 @@ int main(int argc, char *argv[])
 int
 main(int argc, char *argv[])
 {
-    SDL_Log("No OpenGL ES support on this system\n");
+    SDL_Log("No OpenGL ES2 support on this system\n");
     return 1;
 }
 

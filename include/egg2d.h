@@ -21,6 +21,10 @@
   #include <glad/glad.h>
 #endif
 
+#ifdef __cplusplus
+
+extern "C" {
+#endif
 #define GL_CHECK(x) \
     x;              \
     {               \
@@ -38,7 +42,7 @@ static int g_scale;
 static int g_scaledWidth, g_scaledHeight;
 static int g_cropH, g_cropV;
 
-int createWindow(const char* title);
+int createWindow(const char *title);
 
 void ClearScreen();
 
@@ -49,6 +53,11 @@ GLuint loadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc)
 GLuint GetGlowImage();
 
 void UpdateWindow();
+
 void EGG_Quit();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

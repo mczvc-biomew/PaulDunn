@@ -1,4 +1,3 @@
-#include "fractal_renderer.hpp"
 #include <chrono>
 
 #include "fractal_renderer.hpp"
@@ -45,13 +44,13 @@ namespace /* std:: */ {
 
 
 namespace GLContext {
-#define NUM_PARTICLES 25600
+#define NUM_PARTICLES 9560
 
 static GLfloat vertexData[NUM_PARTICLES * 2];
 static GLfloat colorData[NUM_PARTICLES * 3];
 
 // OpenGL ES 2.0 uses shaders
-const char *VERTEX_SHADER = "#version 330 core\n"
+const char *VERTEX_SHADER =
 	"attribute vec4 a_position;\n"
 	"attribute vec4 a_color;\n"
 	"varying vec4 v_color;\n"
@@ -64,16 +63,22 @@ const char *VERTEX_SHADER = "#version 330 core\n"
 	"   v_color = a_color;\n"
 	"}";
 
-const char *FRAGMENT_SHADER = "#version 330 core\n"
+const char *FRAGMENT_SHADER =
 	"precision mediump float;\n"
 	"varying vec4 v_color;\n"
+#if defined(__ANDROID__)
     "layout(location = 0) out vec4 fragColor;\n"
+#endif
     "uniform float u_sensitivity;\n"
     "uniform sampler2D s_texture;\n"
 	"void main()\n"
 	"{\n"
     "   vec4 texColor = texture(s_texture, gl_PointCoord);\n"
+#if defined(__ANDROID__)
+    "   gl_FragColor = vec4(v_color.rgb, u_sensitivity) * texColor.bgra;\n"
+#else
     "   fragColor = vec4(v_color.rgb, u_sensitivity) * texColor.bgra;\n"
+#endif
 	"}";
 
 GLint samplerLoc;
@@ -94,7 +99,7 @@ static void enableTexturing() {
     glUniform1i(samplerLoc, 0);
     glUniform1f(sensitivityLoc, 99.0f / 255.0f);
 
-#if defined(__LINUX__)
+#if !defined(__ANDROID__)
     glPointSize(64);
 #endif
 }
@@ -129,8 +134,8 @@ void Render()
     if (paused) return;
     ClearScreen();
 
-//     Paul Dunn's Bubble Universe 3
-//      Using REL's GlowImage <u>https://rel.phatcode.net</u>
+//   Paul Dunn's Bubble Universe 3
+//    Using REL's GlowImage <u>https://rel.phatcode.net</u>
     for (int i = 0, j = 0; i < NUM_PARTICLES; i++, j+=t)
     {
         // PaulDunn, creator of SpecBasic
@@ -151,8 +156,6 @@ void Render()
         colorData[i * 3 + 0] = static_cast<GLfloat>(color.r);
         colorData[i * 3 + 1] = static_cast<GLfloat>(color.g);
         colorData[i * 3 + 2] = static_cast<GLfloat>(color.b);
-//        colorData[i * 4 + 3] = 99.0 / 255.0;
-
     }
     t += 1.0/60.0;
 
