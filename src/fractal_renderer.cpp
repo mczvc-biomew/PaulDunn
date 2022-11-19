@@ -19,12 +19,12 @@ namespace
     double x = 0.0;
     double y = 0.0;
 
-    const double aspect = 1920.0 / 1100.0;
+    const double aspect = 1520.0 / 720.0;
 
     const double minX = 0.0001;
     const double minY = (minX /*+ 0.5*/) * aspect;
 
-    const double maxX = 4.0;
+    const double maxX = 3.5;
     const double maxY = (maxX + 1.0) * aspect;
 
     const double caw = maxX - minX;

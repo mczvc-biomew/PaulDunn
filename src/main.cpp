@@ -19,8 +19,8 @@
  */
 //namespace {
 
-	int g_targetWidth = 1920;
-	int g_targetHeight = 1100;
+	int g_targetWidth = 720;
+	int g_targetHeight = 720;
 	
 	double g_targetAspect = g_targetWidth / static_cast<double>(g_targetHeight);
 
