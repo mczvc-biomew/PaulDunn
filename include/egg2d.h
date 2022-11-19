@@ -20,11 +20,19 @@
 #else
   #include <glad/glad.h>
 #endif
-
 #ifdef __cplusplus
 
 extern "C" {
 #endif
+
+//  Macros
+
+#ifdef WIN32
+#define EGG_API __cdecl
+#else
+#define EGG_API
+#endif
+
 #define GL_CHECK(x) \
     x;              \
     {               \
@@ -36,6 +44,7 @@ extern "C" {
 
 extern int g_targetWidth, g_targetHeight;
 extern double g_targetAspect;
+
 static int g_actualWidth, g_actualHeight;
 static int g_aspect;
 static int g_scale;
@@ -50,10 +59,13 @@ GLuint loadShader(GLenum type, const char *shaderSrc);
 
 GLuint loadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc);
 
+void EGG_API eggLogMessage(const char *formatStr, ...);
+
+char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int *height);
+
 GLuint GetGlowImage();
 
 void UpdateWindow();
-
 void EGG_Quit();
 
 #ifdef __cplusplus
