@@ -64,9 +64,11 @@ static void init2D() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 #if !defined(__ANDROID__)
-    glClearDepth(1.0);                       //'Set Depth buffer to 1(z-Buffer)
+//  Set Depth buffer to 1(z-Buffer)
+    glClearDepth(1.0);
 #endif
-    glDisable(GL_DEPTH_TEST);                //'Disable Depth Testing so that our z-buffer works
+//  Disable Depth Testing so that our z-buffer works
+    glDisable(GL_DEPTH_TEST);
 
 #if !defined(__ANDROID__)
 //  Compare each incoming pixel z value with the z value present in the depth buffer.
@@ -78,7 +80,7 @@ static void init2D() {
 //  Enable Texturing
     glEnable(GL_TEXTURE_2D);
 
-//  'Disable Backface culling
+//  Disable Backface culling
     glDisable(GL_CULL_FACE);
 
     glDisable(GL_DEPTH_TEST);
@@ -99,7 +101,7 @@ static void init2D() {
  * @param title The title of the window.
  * @return -1: on error; 0 on success.
  */
-int createWindow(const char* title) {
+int CreateWindow(const char* title) {
 
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr, "SDL_Init error: %s\n", SDL_GetError());
@@ -146,6 +148,7 @@ int createWindow(const char* title) {
     }
 #endif
 
+    // Compute the aspect, horizontal or vertical scale, horizontal crop, and vertical crop.
     SDL_GetWindowSize(window, &g_actualWidth, &g_actualHeight);
 
     g_aspect = (float)g_actualWidth / g_actualHeight;
@@ -162,14 +165,16 @@ int createWindow(const char* title) {
     g_scaledWidth = g_targetWidth * g_scale;
     g_scaledHeight = g_targetHeight * g_scale;
 
-    // Initialize viewport and shaders
+//     Initialize viewport and shaders
     initViewPort(g_cropH, g_cropV, g_scaledWidth, g_scaledHeight);
 
+//     Print the OpenGL vendor, renderer, and version.
     //printf("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
     printf("Vendor:   %s\n", glGetString(GL_VENDOR));
     printf("Renderer: %s\n", glGetString(GL_RENDERER));
     printf("Version:  %s\n", glGetString(GL_VERSION));
 
+//    Get the created window surface.
 #if !defined(__ANDROID__)
     screenSurface = SDL_GetWindowSurface(window);
     if (!screenSurface) {
@@ -189,7 +194,7 @@ void EGG_Quit() {
     SDL_Quit();
 }
 
-GLuint loadShader(GLenum type, const char* shaderSrc) {
+GLuint eggLoadShader(GLenum type, const char* shaderSrc) {
     GLuint shader;
     GLint compiled;
 
@@ -201,7 +206,7 @@ GLuint loadShader(GLenum type, const char* shaderSrc) {
 
     glShaderSource(shader, 1, &shaderSrc, NULL);
 
-    // Compile the shader
+//     Compile the shader
     glCompileShader(shader);
 
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
@@ -225,24 +230,24 @@ GLuint loadShader(GLenum type, const char* shaderSrc) {
     return shader;
 }
 
-GLuint loadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc) {
+GLuint eggLoadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc) {
     GLint linked;
-    // Load shaders
-    GLuint vertexShaderObj = loadShader(GL_VERTEX_SHADER, vertexShaderSrc);
+//  Load shaders
+    GLuint vertexShaderObj = eggLoadShader(GL_VERTEX_SHADER, vertexShaderSrc);
 
     if (vertexShaderObj == 0) {
         fprintf(stderr, "There's an error compiling the vertexShaderObj shader.\n");
         return 0;
     }
 
-    GLuint fragmentShaderObj = loadShader(GL_FRAGMENT_SHADER, fragShaderSrc);
+    GLuint fragmentShaderObj = eggLoadShader(GL_FRAGMENT_SHADER, fragShaderSrc);
 
     if (fragmentShaderObj == 0) {
         fprintf(stderr, "There's an error compiling the fragmentShaderObj shader.\n");
         return 0;
     }
 
-    // Combine shaders into shaderProgramObj
+//  Combine shaders into shaderProgramObj
     GLuint shaderProgramObj = glCreateProgram();
 
     if (shaderProgramObj == 0) {
@@ -252,7 +257,7 @@ GLuint loadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc)
 
     glAttachShader(shaderProgramObj, vertexShaderObj);
     glAttachShader(shaderProgramObj, fragmentShaderObj);
-    // Link the shaderProgramObj
+//  Link the shaderProgramObj
     glLinkProgram(shaderProgramObj);
 
     glGetProgramiv(shaderProgramObj, GL_LINK_STATUS, &linked);
@@ -400,7 +405,7 @@ char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int 
     {
         int bytesToRead = sizeof(char) * (*width) * (*height) * Header.ColorDepth / 8;
 
-        // Allocate the image data buffer
+//      Allocate the image data buffer
         buffer = (char*) malloc(bytesToRead);
 
         if (buffer)
