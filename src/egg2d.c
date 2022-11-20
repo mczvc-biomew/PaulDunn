@@ -9,7 +9,6 @@
  */
 
 #include "egg2d.h"
-#include <SDL2/SDL_image.h>
 
 #ifdef ANDROID
   #include <android/log.h>
