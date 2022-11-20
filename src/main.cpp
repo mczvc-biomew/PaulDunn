@@ -30,7 +30,7 @@ bool paused = false;
 
 int main(int argc, char *argv[])
 {
-	bool quit = createWindow("Bubble Universe 3.1") != 0;
+	bool quit = CreateWindow("Bubble Universe 3.1") != 0;
 
 	RendererInit();
 

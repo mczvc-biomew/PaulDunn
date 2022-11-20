@@ -51,13 +51,13 @@ static int g_scale;
 static int g_scaledWidth, g_scaledHeight;
 static int g_cropH, g_cropV;
 
-int createWindow(const char *title);
+int CreateWindow(const char *title);
 
 void ClearScreen();
 
-GLuint loadShader(GLenum type, const char *shaderSrc);
+GLuint eggLoadShader(GLenum type, const char *shaderSrc);
 
-GLuint loadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc);
+GLuint eggLoadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc);
 
 void EGG_API eggLogMessage(const char *formatStr, ...);
 
