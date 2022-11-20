@@ -22,10 +22,10 @@ namespace
     const double aspect = 1920.0 / 1200.0;
 
     const double minX = 0.0001;
-    const double minY = (minX /*+ 0.5*/) * aspect;
+    const double minY = (minX + 0.5) * aspect;
 
-    const double maxX = 4.9;
-    const double maxY = (maxX + 1.0) * aspect;
+    const double maxX = 5.5;
+    const double maxY = (maxX + 0.5) * aspect;
 
     const double caw = maxX - minX;
     const double cah = maxY - minY;
@@ -45,7 +45,7 @@ namespace /* std:: */ {
 
 
 namespace GLContext {
-//   Intel i3 2.10Ghz >
+//   Intel i3 2.10Ghz with OpenGL 4.4 >
 #define NUM_PARTICLES 25600
 
 static GLfloat vertexData[NUM_PARTICLES * 2];
@@ -104,6 +104,7 @@ void RendererInit()
     }
     // Use it
     glUseProgram(program);
+    glDeleteProgram(program);
 
     samplerLoc = glGetUniformLocation(program, "s_texture");
     sensitivityLoc = glGetUniformLocation(program, "u_sensitivity");
@@ -141,7 +142,7 @@ void Render()
         const int vI = i * 2;
         
         const auto vX = static_cast<GLfloat>((u - minX + 0.5) * daw - 0.25);
-        const auto vY = static_cast<GLfloat>((v - minY + 0.5) * dah - 0.25);
+        const auto vY = static_cast<GLfloat>((v - minY + 0.5) * dah + 0.125);
 
         vertexData[vI + 0] = vX;
         vertexData[vI + 1] = vY;

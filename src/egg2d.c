@@ -87,6 +87,7 @@ static void init2D() {
     glDisable(GL_STENCIL_TEST);
     glDisable(GL_DITHER);
 
+//  Clears both Window Buffer with Color, Depth, and Stencil Buffet set.
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -102,16 +103,17 @@ static void init2D() {
  * @return -1: on error; 0 on success.
  */
 int CreateWindow(const char* title) {
-
+//  Initialize SDL (everything)
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr, "SDL_Init error: %s\n", SDL_GetError());
         SDL_Quit();
         return -1;
     }
-
+//  Prepare OpenGL 2.0 Context on SDL2
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-
+//  Sets Red, Green, Blue, Alpha to 8 bit, Depth size to 16.
+//  With double buffering and accelerated visuals.
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
@@ -121,14 +123,16 @@ int CreateWindow(const char* title) {
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
 #if !defined(__ANDROID__)
+//  Set swap interval to synchronized vertical re-trace.
     SDL_GL_SetSwapInterval(1);
 #endif
 
     window = SDL_CreateWindow(title, 0, 0,
-                              g_targetWidth, g_targetHeight, SDL_WINDOW_OPENGL);
+        g_targetWidth, g_targetHeight, SDL_WINDOW_OPENGL);
     if (!window) {
         fprintf(stderr, "SDL_CreateWindow error: %s\n", SDL_GetError());
         SDL_Quit();
+//      Do something on failure (to the callee).
         return -1;
     }
 
@@ -136,19 +140,19 @@ int CreateWindow(const char* title) {
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 #endif
 
-    // We will not actually need a context created, but we should create one
+//  We will not actually need a context created, but we should create one
     SDL_GLContext gl = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl);
 
 #if !defined(__ANDROID__)
-    // Initialize GLAD
+//  Initialize GLAD
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         fprintf(stderr, "Cannot load GLAD\n");
         return -1;
     }
 #endif
 
-    // Compute the aspect, horizontal or vertical scale, horizontal crop, and vertical crop.
+//  Compute the aspect, horizontal or vertical scale, horizontal crop, and vertical crop.
     SDL_GetWindowSize(window, &g_actualWidth, &g_actualHeight);
 
     g_aspect = (float)g_actualWidth / g_actualHeight;
@@ -165,16 +169,16 @@ int CreateWindow(const char* title) {
     g_scaledWidth = g_targetWidth * g_scale;
     g_scaledHeight = g_targetHeight * g_scale;
 
-//     Initialize viewport and shaders
+//  Initialize viewport and shaders
     initViewPort(g_cropH, g_cropV, g_scaledWidth, g_scaledHeight);
 
-//     Print the OpenGL vendor, renderer, and version.
+//  Print the OpenGL vendor, renderer, and version.
     //printf("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
     printf("Vendor:   %s\n", glGetString(GL_VENDOR));
     printf("Renderer: %s\n", glGetString(GL_RENDERER));
     printf("Version:  %s\n", glGetString(GL_VERSION));
 
-//    Get the created window surface.
+//    Get and save the created window surface.
 #if !defined(__ANDROID__)
     screenSurface = SDL_GetWindowSurface(window);
     if (!screenSurface) {
@@ -194,23 +198,24 @@ void EGG_Quit() {
     SDL_Quit();
 }
 
-GLuint eggLoadShader(GLenum type, const char* shaderSrc) {
+GLuint eggLoadShader(GLenum type, const char *shaderSrc) {
     GLuint shader;
     GLint compiled;
-
+//  Create new shader object.
     shader = glCreateShader(type);
 
     if (shader == 0) {
         return 0;
     }
-
+//  Set the shader source for compiling.
     glShaderSource(shader, 1, &shaderSrc, NULL);
 
-//     Compile the shader
+//  Compile the shader
     glCompileShader(shader);
 
+//  Check the compilation status.
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-
+//  On compilation error, print the error status info, deletes the shader, and then return 0.
     if (!compiled) {
         GLint infoLen = 0;
 
@@ -231,37 +236,35 @@ GLuint eggLoadShader(GLenum type, const char* shaderSrc) {
 }
 
 GLuint eggLoadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc) {
-    GLint linked;
-//  Load shaders
+    GLint linked; // link status
+//  Load the vertex shader. On error, the shader was already deleted, so print some status, and return 0;
     GLuint vertexShaderObj = eggLoadShader(GL_VERTEX_SHADER, vertexShaderSrc);
-
     if (vertexShaderObj == 0) {
         fprintf(stderr, "There's an error compiling the vertexShaderObj shader.\n");
         return 0;
     }
-
+//  Load the fragment shader. Same for the fragment shader, fragment shader was already deleted,
+//  so print some error status, and return 0.
     GLuint fragmentShaderObj = eggLoadShader(GL_FRAGMENT_SHADER, fragShaderSrc);
-
     if (fragmentShaderObj == 0) {
-        fprintf(stderr, "There's an error compiling the fragmentShaderObj shader.\n");
+        fprintf(stderr, "There's an error compiling the fragmentShaderObj.\n");
         return 0;
     }
 
-//  Combine shaders into shaderProgramObj
+//  Combine the shaders into shader program. On error, print some error status, and return 0.
     GLuint shaderProgramObj = glCreateProgram();
-
     if (shaderProgramObj == 0) {
         fprintf(stderr, "There's an error creating shader shaderProgramObj.\n");
         return 0;
     }
-
+//  Attach both vertex and fragment shader for program compiling.
     glAttachShader(shaderProgramObj, vertexShaderObj);
     glAttachShader(shaderProgramObj, fragmentShaderObj);
-//  Link the shaderProgramObj
+//  Link the shader program.
     glLinkProgram(shaderProgramObj);
 
+//  Check the compilation status. On error, print some error status, then delete the shader program.
     glGetProgramiv(shaderProgramObj, GL_LINK_STATUS, &linked);
-
     if (!linked) {
         GLint infoLen = 0;
 
@@ -278,7 +281,8 @@ GLuint eggLoadShaderProgram(const char *vertexShaderSrc, const char *fragShaderS
         glDeleteProgram(shaderProgramObj);
         return 0;
     }
-
+//  Finally delete the vertex and fragment shader.
+//  Shader object will be return and pass the program deletion to the user.
     glDeleteShader(vertexShaderObj);
     glDeleteShader(fragmentShaderObj);
 
