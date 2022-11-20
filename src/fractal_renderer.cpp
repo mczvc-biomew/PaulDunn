@@ -18,7 +18,7 @@ namespace
 
     double x = 0.0;
     double y = 0.0;
-
+//  Works on 1920x1200 resolution.
     const double aspect = 1920.0 / 1200.0;
 
     const double minX = 0.0001;
@@ -131,7 +131,7 @@ void Render()
 //  Using REL's GlowImage <u>https://rel.phatcode.net</u>
     for (int i = 0, j = 0; i < NUM_PARTICLES; i++, j += t)
     {
-        // PaulDunn, creator of SpecBasic
+        // PaulDunn, creator of SpecBasic, interpreter for SinClair Basic.
         const double u = sin(i+y) + sin(j / (NUM_PARTICLES * M_PI) + x);
         const double v = cos(i+y) + cos(j / (NUM_PARTICLES * M_PI) + x);
         x = u + t;
@@ -139,11 +139,10 @@ void Render()
 
         const Color color = Color::createHue(cos(cos(i) - sin(t)));
 
-        const int vI = i * 2;
-        
         const auto vX = static_cast<GLfloat>((u - minX + 0.5) * daw - 0.25);
         const auto vY = static_cast<GLfloat>((v - minY + 0.5) * dah + 0.125);
 
+        const int vI = i * 2;
         vertexData[vI + 0] = vX;
         vertexData[vI + 1] = vY;
 
