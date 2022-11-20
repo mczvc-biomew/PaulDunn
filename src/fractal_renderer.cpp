@@ -129,8 +129,8 @@ void Render()
     if (paused) return;
     ClearScreen();
 
-//     Paul Dunn's Bubble Universe 3
-//      Using REL's GlowImage <u>https://rel.phatcode.net</u>
+//  Paul Dunn's Bubble Universe 3
+//    Using REL's GlowImage <u>https://rel.phatcode.net</u>
     for (int i = 0, j = 0; i < NUM_PARTICLES; i++, j+=t)
     {
         // PaulDunn, creator of SpecBasic
@@ -141,16 +141,18 @@ void Render()
 
         const Color color = Color::createHue(cos(cos(i) - sin(t)));
 
-        const int jj = i*2;
-        const double v1 = static_cast<GLfloat>((u - minX + 0.5) * daw - 0.25);
-        const double v2 = static_cast<GLfloat>((v - minY + 0.5) * dah - 0.25);
+        const int vI = i * 2;
+        
+        const auto vX = static_cast<GLfloat>((u - minX + 0.5) * daw - 0.25);
+        const auto vY = static_cast<GLfloat>((v - minY + 0.5) * dah - 0.25);
 
-        vertexData[jj + 0] = v1;
-        vertexData[jj + 1] = v2;
+        vertexData[vI + 0] = vX;
+        vertexData[vI + 1] = vY;
 
-        colorData[i * 3 + 0] = static_cast<GLfloat>(color.r);
-        colorData[i * 3 + 1] = static_cast<GLfloat>(color.g);
-        colorData[i * 3 + 2] = static_cast<GLfloat>(color.b);
+        const int cI = i * 3;
+        colorData[cI + 0] = static_cast<GLfloat>(color.r);
+        colorData[cI + 1] = static_cast<GLfloat>(color.g);
+        colorData[cI + 2] = static_cast<GLfloat>(color.b);
 //        colorData[i * 4 + 3] = 99.0 / 255.0;
 
     }
