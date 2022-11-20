@@ -1,3 +1,4 @@
+
 #include "fractal_renderer.hpp"
 
 #include <chrono>
