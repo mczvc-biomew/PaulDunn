@@ -1,4 +1,7 @@
 #ifndef FRACTAL_RENDERER_HPP
+/** @file fractal_renderer.hpp
+ * <br>Paul Dunn's Bubble Universe 3 as fractal.
+ */
 #define FRACTAL_RENDERER_HPP
 
 #include <cmath>
@@ -6,13 +9,8 @@
 
 #include <SDL2/SDL.h>
 
-#if defined(GLES2) && defined(__ANDROID__)
-  #include <GLES2/gl2.h>
-#elif defined(GLES1) && defined(__ANDROID__)
-  #include <GLES/gl.h>
-#else
-  #include "egg2d.h"
-#endif
+#include "egg2d.h"
+
 
 void RendererInit();
 void Render();

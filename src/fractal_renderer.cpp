@@ -1,7 +1,6 @@
 #include "fractal_renderer.hpp"
-#include <chrono>
 
-#include "fractal_renderer.hpp"
+#include <chrono>
 
 #ifndef PaulBourke_Net
 #include "pbcolor.hpp"
@@ -19,12 +18,12 @@ namespace
     double x = 0.0;
     double y = 0.0;
 
-    const double aspect = 1920.0 / 1100.0;
+    const double aspect = 1920.0 / 1200.0;
 
     const double minX = 0.0001;
     const double minY = (minX /*+ 0.5*/) * aspect;
 
-    const double maxX = 4.0;
+    const double maxX = 4.9;
     const double maxY = (maxX + 1.0) * aspect;
 
     const double caw = maxX - minX;
@@ -45,6 +44,7 @@ namespace /* std:: */ {
 
 
 namespace GLContext {
+//   Intel i3 2.10Ghz >
 #define NUM_PARTICLES 25600
 
 static GLfloat vertexData[NUM_PARTICLES * 2];
@@ -57,9 +57,6 @@ const char *VERTEX_SHADER = "#version 330 core\n"
 	"varying vec4 v_color;\n"
 	"void main()\n"
 	"{\n"
-#if defined(__ANDROID__)
-    "gl_PointSize = 64.0;\n"
-#endif
 	"   gl_Position = vec4(a_position.xyz, 1.0);\n"
 	"   v_color = a_color;\n"
 	"}";
@@ -94,13 +91,12 @@ static void enableTexturing() {
     glUniform1i(samplerLoc, 0);
     glUniform1f(sensitivityLoc, 99.0f / 255.0f);
 
-#if defined(__LINUX__)
     glPointSize(64);
-#endif
 }
 
 void RendererInit()
 {
+    // Creates new OpenGL shader, (330 core)
     GLuint program = eggLoadShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     if (program == 0) {
         SDL_Quit();
@@ -111,11 +107,11 @@ void RendererInit()
     samplerLoc = glGetUniformLocation(program, "s_texture");
     sensitivityLoc = glGetUniformLocation(program, "u_sensitivity");
 
-    // Point position attribute to vertexData
+    // Points position attribute to vertexData
     GLint position = glGetAttribLocation(program, "a_position");
     glEnableVertexAttribArray(position);
     glVertexAttribPointer(position, 2, GL_FLOAT, GL_FALSE, 0, vertexData);
-    // Point color attribute to colorData
+    // Points color attribute to colorData
     GLint color = glGetAttribLocation(program, "a_color");
     glEnableVertexAttribArray(color);
     glVertexAttribPointer(color, 3, GL_FLOAT, GL_FALSE, 0, colorData);
@@ -129,9 +125,9 @@ void Render()
     if (paused) return;
     ClearScreen();
 
-//  Paul Dunn's Bubble Universe 3
-//    Using REL's GlowImage <u>https://rel.phatcode.net</u>
-    for (int i = 0, j = 0; i < NUM_PARTICLES; i++, j+=t)
+//    Paul Dunn's Bubble Universe 3
+//  Using REL's GlowImage <u>https://rel.phatcode.net</u>
+    for (int i = 0, j = 0; i < NUM_PARTICLES; i++, j += t)
     {
         // PaulDunn, creator of SpecBasic
         const double u = sin(i+y) + sin(j / (NUM_PARTICLES * M_PI) + x);
@@ -153,7 +149,6 @@ void Render()
         colorData[cI + 0] = static_cast<GLfloat>(color.r);
         colorData[cI + 1] = static_cast<GLfloat>(color.g);
         colorData[cI + 2] = static_cast<GLfloat>(color.b);
-//        colorData[i * 4 + 3] = 99.0 / 255.0;
 
     }
     t += 1.0/60.0;
