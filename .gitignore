@@ -1,8 +1,10 @@
-.ninja_deps
-.ninja_logs
-/cmake_install.cmake
-/compile_commands.json
+# Files
+.ninja_deps             #Ninja Build gen deps
+.ninja_logs             #Ninja Build logs
+/cmake_install.cmake    #CMake Install
+/compile_commands.json  #Cxxdroid's commands
 
-/.idea/
-/cmake-build-debug/
-/CMakeFiles/
+# Directories
+/.idea/                 #Clion
+/cmake-build-debug/     #CMake debug build
+/CMakeFiles/            #CMake gen folder

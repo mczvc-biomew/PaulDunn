@@ -27,7 +27,6 @@ endif()
 add_executable(${PROJECT_NAME} ${SRCS})
 
 find_package(OpenGL REQUIRED COMPONENTS OpenGL)
-
 find_package(SDL2 REQUIRED)
 
 include_directories(${SDL_IMAGE_INCLUDE_DIR} ${OPENGL_INCLUDE_DIRS})
