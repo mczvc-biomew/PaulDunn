@@ -20,7 +20,10 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++11 -ldl")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-add_definitions(-DGLES2)
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+  add_definitions(-DGLES2)
+endif()
+
 add_executable(${PROJECT_NAME} ${SRCS})
 
 find_package(OpenGL REQUIRED COMPONENTS OpenGL)
