@@ -64,16 +64,16 @@ static void init2D() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 #if !defined(__ANDROID__)
-//  Set Depth buffer to 1(z-Buffer)
+//  Set Depth buffer to 1(d-Buffer)
     glClearDepth(1.0);
 #endif
-//  Disable Depth Testing so that our z-buffer works
+//  Disable Depth Testing so that our d-buffer works
     glDisable(GL_DEPTH_TEST);
 
 #if !defined(__ANDROID__)
-//  Compare each incoming pixel z value with the z value present in the depth buffer.
-//  LEQUAL means than pixel is drawn if the incoming z value is less than
-//  or equal to the stored z value.
+//  Compare each incoming pixel d value with the d value present in the depth buffer.
+//  LEQUAL means than pixel is drawn if the incoming d value is less than
+//  or equal to the stored d value.
     glDepthFunc(GL_LEQUAL);
 #endif
 
