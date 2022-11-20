@@ -115,7 +115,7 @@ void RendererInit()
     // Points color attribute to colorData
     GLint color = glGetAttribLocation(program, "a_color");
     glEnableVertexAttribArray(color);
-    glVertexAttribPointer(color, 3, GL_FLOAT, GL_TRUE, 0, colorData);
+    glVertexAttribPointer(color, 3, GL_FLOAT, GL_FALSE, 0, colorData);
 
     enableTexturing();
 }
