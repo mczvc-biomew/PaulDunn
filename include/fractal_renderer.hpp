@@ -13,6 +13,7 @@
 
 
 void RendererInit();
+
 void Render();
 
 #endif

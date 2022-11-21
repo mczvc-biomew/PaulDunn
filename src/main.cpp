@@ -46,9 +46,9 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        // Render Paul Dunn`s attractor
-        Render();
-    }
+		// Render Paul Dunn`s fractal
+		Render();
+	}
 
     EGG_Quit();
     return 0;
