@@ -3,8 +3,11 @@
 .ninja_logs             #Ninja Build logs
 /cmake_install.cmake    #CMake Install
 /compile_commands.json  #Cxxdroid's commands
+PaulDunn
+Makefile
 
 # Directories
 /.idea/                 #Clion
 /cmake-build-debug/     #CMake debug build
 /CMakeFiles/            #CMake gen folder
+/cmake-build-debug/     #CMake Debug config build
