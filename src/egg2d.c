@@ -11,11 +11,11 @@
 #include "egg2d.h"
 
 #ifdef ANDROID
-  #include <android/log.h>
-  #include <android/asset_manager.h>
-  typedef AAsset eggFile;
+#include <android/log.h>
+#include <android/asset_manager.h>
+typedef AAsset eggFile;
 #else
-  typedef FILE eggFile;
+typedef FILE eggFile;
 #endif
 
 static SDL_Surface *screenSurface = NULL;
@@ -27,8 +27,7 @@ static SDL_Renderer *renderer = NULL;
 #pragma pack(1)
 #endif
 
-typedef struct
-{
+typedef struct {
     unsigned char IdSize,
             ImageType;
     unsigned short PaletteSize, PaletteEntryDepth;
@@ -102,7 +101,7 @@ static void init2D() {
  * @param title The title of the window.
  * @return -1: on error; 0 on success.
  */
-int CreateWindow(const char* title) {
+int CreateWindow(const char *title) {
 //  Initialize SDL (everything)
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr, "SDL_Init error: %s\n", SDL_GetError());
@@ -128,7 +127,7 @@ int CreateWindow(const char* title) {
 #endif
 
     window = SDL_CreateWindow(title, 0, 0,
-        g_targetWidth, g_targetHeight, SDL_WINDOW_OPENGL);
+                              g_targetWidth, g_targetHeight, SDL_WINDOW_OPENGL);
     if (!window) {
         fprintf(stderr, "SDL_CreateWindow error: %s\n", SDL_GetError());
         SDL_Quit();
@@ -146,7 +145,7 @@ int CreateWindow(const char* title) {
 
 #if !defined(__ANDROID__)
 //  Initialize GLAD
-    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+    if (!gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress)) {
         fprintf(stderr, "Cannot load GLAD\n");
         return -1;
     }
@@ -155,16 +154,17 @@ int CreateWindow(const char* title) {
 //  Compute the aspect, horizontal or vertical scale, horizontal crop, and vertical crop.
     SDL_GetWindowSize(window, &g_actualWidth, &g_actualHeight);
 
-    g_aspect = (float)g_actualWidth / g_actualHeight;
-    g_cropH = 0.f; g_cropV = 0.0f;
+    g_aspect = (float) g_actualWidth / g_actualHeight;
+    g_cropH = 0.f;
+    g_cropV = 0.0f;
 
     if (g_aspect > g_targetAspect) {
-        g_scale = (float)g_actualWidth / g_targetHeight;
+        g_scale = (float) g_actualWidth / g_targetHeight;
         g_cropH = (g_actualWidth - g_targetWidth * g_scale) * 0.5f;
     } else if (g_aspect < g_targetAspect) {
-        g_scale = (float)g_actualWidth / g_targetWidth;
+        g_scale = (float) g_actualWidth / g_targetWidth;
         g_cropV = (g_actualHeight - g_targetHeight * g_scale) * 0.5f;
-    } else { g_scale = (float)g_actualWidth / g_targetWidth; }
+    } else { g_scale = (float) g_actualWidth / g_targetWidth; }
 
     g_scaledWidth = g_targetWidth * g_scale;
     g_scaledHeight = g_targetHeight * g_scale;
@@ -221,8 +221,8 @@ GLuint eggLoadShader(GLenum type, const char *shaderSrc) {
 
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
 
-        if ( infoLen > -1 ) {
-            char *infoLog = (char*) malloc(sizeof(char) * infoLen);
+        if (infoLen > -1) {
+            char *infoLog = (char *) malloc(sizeof(char) * infoLen);
             glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
             fprintf(stderr, "%s", infoLog);
 
@@ -271,7 +271,7 @@ GLuint eggLoadShaderProgram(const char *vertexShaderSrc, const char *fragShaderS
         glGetProgramiv(shaderProgramObj, GL_INFO_LOG_LENGTH, &infoLen);
 
         if (infoLen > -1) {
-            char *infoLog = (char *)malloc(sizeof(char) * infoLen);
+            char *infoLog = (char *) malloc(sizeof(char) * infoLen);
 
             glGetProgramInfoLog(shaderProgramObj, infoLen, NULL, infoLog);
             fprintf(stderr, "Error linking shaderProgramObj\n%s\n", infoLog);
@@ -325,10 +325,8 @@ static eggFile *eggFileOpen(void *ioContext, const char *fileName) {
     return pFile;
 }
 
-static void eggFileClose(eggFile *pFile)
-{
-    if (pFile != NULL)
-    {
+static void eggFileClose(eggFile *pFile) {
+    if (pFile != NULL) {
 #ifdef ANDROID
         AAsset_close(pFile);
 #else
@@ -338,12 +336,10 @@ static void eggFileClose(eggFile *pFile)
     }
 }
 
-static int eggFileRead(eggFile *pFile, int bytesToRead, void *buffer)
-{
+static int eggFileRead(eggFile *pFile, int bytesToRead, void *buffer) {
     int bytesRead = 0;
 
-    if (pFile == NULL)
-    {
+    if (pFile == NULL) {
         return bytesRead;
     }
 
@@ -386,8 +382,7 @@ GLuint GetGlowImage() {
     return textureID;
 }
 
-char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int *height)
-{
+char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int *height) {
     char *buffer;
     eggFile *fp;
     PCM_HEADER Header;
@@ -405,15 +400,13 @@ char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int 
     *width = Header.Width;
     *height = Header.Height;
 
-    if (Header.ColorDepth == 128)
-    {
+    if (Header.ColorDepth == 128) {
         int bytesToRead = sizeof(char) * (*width) * (*height) * Header.ColorDepth / 8;
 
 //      Allocate the image data buffer
-        buffer = (char*) malloc(bytesToRead);
+        buffer = (char *) malloc(bytesToRead);
 
-        if (buffer)
-        {
+        if (buffer) {
             bytesRead = eggFileRead(fp, bytesToRead, buffer);
             eggFileClose(fp);
 
@@ -426,7 +419,7 @@ char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int 
 /**
  * Clears the screen with black.
  */
-void ClearScreen () {
+void ClearScreen() {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }

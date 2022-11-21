@@ -4,15 +4,16 @@
 #include <chrono>
 
 #ifndef PaulBourke_Net
+
 #include "pbcolor.hpp"
+
 #endif
 
 using namespace std;
 using namespace std::chrono;
 
 // Change params only in this block
-namespace
-{
+namespace {
     const double width = 0.8;
     const double height = 4.0;
 
@@ -31,16 +32,16 @@ namespace
     const double cah = maxY - minY;
     const double daw = width * 2 / caw;
     const double dah = height / cah;
-  
+
     double t = 9.0;
-      
+
 };
 
 extern bool paused;
 
 
 namespace /* std:: */ {
-    #define clock_now std::chrono::high_resolution_clock::now
+#define clock_now std::chrono::high_resolution_clock::now
 };
 
 
@@ -48,37 +49,36 @@ namespace GLContext {
 //   Intel i3 2.10Ghz with OpenGL 4.4 >
 #define NUM_PARTICLES 25600
 
-static GLfloat vertexData[NUM_PARTICLES * 2];
-static GLfloat colorData[NUM_PARTICLES * 3];
+    static GLfloat vertexData[NUM_PARTICLES * 2];
+    static GLfloat colorData[NUM_PARTICLES * 3];
 
 // OpenGL ES 2.0 uses shaders
-const char *VERTEX_SHADER = "#version 330 core\n"
-	"attribute vec4 a_position;\n"
-	"attribute vec4 a_color;\n"
-	"varying vec4 v_color;\n"
-	"void main()\n"
-	"{\n"
-	"   gl_Position = vec4(a_position.xyz, 1.0);\n"
-	"   v_color = a_color;\n"
-	"}";
+    const char *VERTEX_SHADER = "#version 330 core\n"
+                                "attribute vec4 a_position;\n"
+                                "attribute vec4 a_color;\n"
+                                "varying vec4 v_color;\n"
+                                "void main()\n"
+                                "{\n"
+                                "   gl_Position = vec4(a_position.xyz, 1.0);\n"
+                                "   v_color = a_color;\n"
+                                "}";
 
-const char *FRAGMENT_SHADER = "#version 330 core\n"
-	"precision mediump float;\n"
-	"varying vec4 v_color;\n"
-    "layout(location = 0) out vec4 fragColor;\n"
-    "uniform float u_sensitivity;\n"
-    "uniform sampler2D s_texture;\n"
-	"void main()\n"
-	"{\n"
-    "   vec4 texColor = texture(s_texture, gl_PointCoord);\n"
-    "   fragColor = vec4(v_color.rgb, u_sensitivity) * texColor.bgra;\n"
-	"}";
+    const char *FRAGMENT_SHADER = "#version 330 core\n"
+                                  "precision mediump float;\n"
+                                  "varying vec4 v_color;\n"
+                                  "layout(location = 0) out vec4 fragColor;\n"
+                                  "uniform float u_sensitivity;\n"
+                                  "uniform sampler2D s_texture;\n"
+                                  "void main()\n"
+                                  "{\n"
+                                  "   vec4 texColor = texture(s_texture, gl_PointCoord);\n"
+                                  "   fragColor = vec4(v_color.rgb, u_sensitivity) * texColor.bgra;\n"
+                                  "}";
 
-GLint samplerLoc;
-GLint sensitivityLoc;
+    GLint samplerLoc;
+    GLint sensitivityLoc;
 
 }; using namespace GLContext;
-
 
 
 static void enableTexturing() {
@@ -95,8 +95,7 @@ static void enableTexturing() {
     glPointSize(64);
 }
 
-void RendererInit()
-{
+void RendererInit() {
     // Creates new OpenGL shader, (330 core)
     GLuint program = eggLoadShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     if (program == 0) {
@@ -121,19 +120,17 @@ void RendererInit()
     enableTexturing();
 }
 
-void Render()
-{
+void Render() {
 
     if (paused) return;
     ClearScreen();
 
 //    Paul Dunn's Bubble Universe 3
 //  Using REL's GlowImage <u>https://rel.phatcode.net</u>
-    for (int i = 0, j = 0; i < NUM_PARTICLES; i++, j += t)
-    {
+    for (int i = 0, j = 0; i < NUM_PARTICLES; i++, j += t) {
         // PaulDunn, creator of SpecBasic, interpreter for SinClair Basic.
-        const double u = sin(i+y) + sin(j / (NUM_PARTICLES * M_PI) + x);
-        const double v = cos(i+y) + cos(j / (NUM_PARTICLES * M_PI) + x);
+        const double u = sin(i + y) + sin(j / (NUM_PARTICLES * M_PI) + x);
+        const double v = cos(i + y) + cos(j / (NUM_PARTICLES * M_PI) + x);
         x = u + t;
         y = v + t;
 
@@ -152,9 +149,9 @@ void Render()
         colorData[cI + 2] = static_cast<GLfloat>(color.b);
 
     }
-    t += 1.0/60.0;
+    t += 1.0 / 60.0;
 
-	glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
+    glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
     UpdateWindow();
 
 }
