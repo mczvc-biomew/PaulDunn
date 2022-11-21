@@ -18,9 +18,9 @@
  * <li> Easy Game Graphics, Egg Co. </li>
  */
 //namespace {
-
-	int g_targetWidth = 1920;
-	int g_targetHeight = 1100;
+// 1920x720 but sets to min size
+	int g_targetWidth = 720;
+	int g_targetHeight = 720;
 	
 	double g_targetAspect = g_targetWidth / static_cast<double>(g_targetHeight);
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
         	} 
 		}
 
-		// Render Paul Dunn`s fractal
+		// Render Paul Dunn`s attractor
 		Render();
 	}
 
