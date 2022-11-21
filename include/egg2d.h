@@ -13,13 +13,17 @@
 #include <stdio.h>
 #include <math.h>
 #include <SDL2/SDL.h>
+
 #if defined(__ANDROID__) && defined(GLES2)
-  #include <GLES2/gl2.h>
+#include <GLES2/gl2.h>
 #elif defined(__ANDROID__) && defined(GLES1)
-  #include <GLES/gl.h>
+#include <GLES/gl.h>
 #else
-  #include <glad/glad.h>
+
+#include <glad/glad.h>
+
 #endif
+
 #ifdef __cplusplus
 
 extern "C" {
@@ -66,6 +70,7 @@ char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int 
 GLuint GetGlowImage();
 
 void UpdateWindow();
+
 void EGG_Quit();
 
 #ifdef __cplusplus

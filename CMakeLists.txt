@@ -1,23 +1,23 @@
 #Cxxdroid-binary: PaulDunn
 if (CMAKE_SYSTEM_NAME MATCHES "Android")
-	cmake_minimum_required(VERSION 3.7.2)
-else()
-	cmake_minimum_required(VERSION 3.16.3)
-endif()
+  cmake_minimum_required(VERSION 3.7.2)
+else ()
+  cmake_minimum_required(VERSION 3.16.3)
+endif ()
 
 project(PaulDunn)
 include_directories(
-	${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/src
+        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/src
 )
 file(GLOB SRCS
-	"${PROJECT_SOURCE_DIR}/include/*"
-	"${PROJECT_SOURCE_DIR}/src/*"
-)
+        "${PROJECT_SOURCE_DIR}/include/*"
+        "${PROJECT_SOURCE_DIR}/src/*"
+        )
 
-if(NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
-endif()
+endif ()
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 

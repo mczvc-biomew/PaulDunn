@@ -40,7 +40,7 @@ extern bool paused;
 
 
 namespace /* std:: */ {
-    #define clock_now std::chrono::high_resolution_clock::now
+  #define clock_now std::chrono::high_resolution_clock::now
 };
 
 
