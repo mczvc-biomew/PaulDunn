@@ -12,15 +12,15 @@
  * SDL2 on Android and Linux. <li> Cxxdroid </li>
  * <li> CMake </li> <li> SDL2 </li> <li> SDL2_image </li> <li> GLAD </li>
  * <li> Relminator: <u>http://rel.phatcode.net<u> </li> <li> PaulDunn: SpecBasic </li>
- * <li> Jetbrain's Clion <br>
+ * <li> Jetbrain's Clion <br><br>
  * ### [mczvc-biomew] \<czarm827\@protonmail.com\><br>
  * Meldencio Czarlemagne Veras Corrales, BSCS
  * <li> Easy Game Graphics, Egg Co. </li>
  */
 //namespace {
 
-	int g_targetWidth = 720;
-	int g_targetHeight = 720;
+	int g_targetWidth = 1920;
+	int g_targetHeight = 1100;
 	
 	double g_targetAspect = g_targetWidth / static_cast<double>(g_targetHeight);
 
@@ -30,11 +30,9 @@ bool paused = false;
 
 int main(int argc, char *argv[])
 {
-	bool quit = createWindow("Bubble Universe") != 0;
+	bool quit = CreateWindow("Bubble Universe 3.1") != 0;
 
 	RendererInit();
-
-    unsigned int lastTick = 0;
 
 	while (!quit)
 	{
@@ -49,7 +47,7 @@ int main(int argc, char *argv[])
         	} 
 		}
 
-		// Render fractal
+		// Render Paul Dunn`s fractal
 		Render();
 	}
 
@@ -59,9 +57,9 @@ int main(int argc, char *argv[])
 
 #else
 int
-main(int argc, char *argv[])
+main(int, char *[])
 {
-    SDL_Log("No OpenGL ES2 support on this system\n");
+    SDL_Log("No OpenGL ES support on this system\n");
     return 1;
 }
 

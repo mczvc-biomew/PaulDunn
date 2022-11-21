@@ -1,4 +1,7 @@
 #ifndef FRACTAL_RENDERER_HPP
+/** @file fractal_renderer.hpp
+ * <br>Paul Dunn's Bubble Universe 3 as fractal.
+ */
 #define FRACTAL_RENDERER_HPP
 
 #include <cmath>
@@ -10,7 +13,6 @@
 
 
 void RendererInit();
-void renderInit3();
 void Render();
 
 #endif

@@ -94,7 +94,7 @@ static void enableTexturing() {
 
 void RendererInit()
 {
-    GLuint program = loadShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+    GLuint program = eggLoadShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     if (program == 0) {
         SDL_Quit();
     }
