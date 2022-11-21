@@ -32,7 +32,8 @@ bool paused = false;
 int main(int argc, char *argv[]) {
     bool quit = CreateWindow("Bubble Universe 3.1") != 0;
 
-    RendererInit();
+    if (!quit)
+        RendererInit();
 
     while (!quit) {
         SDL_Event event;
