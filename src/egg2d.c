@@ -185,7 +185,9 @@ int CreateWindow(const char *title) {
 }
 
 void EGG_Quit() {
+#if !defined(__ANDROID__)
     SDL_DestroyRenderer(renderer);
+#endif
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
