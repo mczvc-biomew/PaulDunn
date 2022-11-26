@@ -3,7 +3,9 @@
 Made using EGG2D and SDL 2.0 ([Cxxdroid](https://play.google.com/store/apps/details?id=ru.iiec.cxxdroid&hl=en&gl=US&pli=1) on Android)
 
 `mczvc`
-Meldencio Czarlemagne Veras Corrales ~~--~~ czarm827@protonmail.com
+Meldencio Czarlemagne Veras Corrales ~~--~~ mczvc@proton.me
 
-## Screenshot
+## Screenshots
 ![code](./Screenshot%20from%202022-11-21%2015-15-58.png)
+![code](./Desktop/Screenshot%20from%202022-11-26%2021-28-38.png)
+![code](./Desktop/Screenshot%20from%202022-11-26%2021-35-10.png)
