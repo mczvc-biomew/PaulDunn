@@ -3,7 +3,7 @@
  * @file egg2d.h\n
  * Easy Game Graphics 0.1
  *
- * [mczvc] (2022) czarm827\@protonmail.com<br><br>
+ * [mczvc] (2022) mczvc\@proton.me<br><br>
  * Meldencio Czarlemagne Veras Corrales, CS (2nd year)
  *
  * <li>https://github.com/mczvc827

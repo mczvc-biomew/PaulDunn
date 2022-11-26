@@ -14,7 +14,7 @@
  * <li> CMake </li> <li> SDL2 </li> <li> SDL2_image </li> <li> GLAD </li>
  * <li> Relminator: <u>http://rel.phatcode.net<u> </li> <li> PaulDunn: SpecBasic </li>
  * <li> Jetbrain's Clion <br><br>
- * ### [mczvc-biomew] \<czarm827\@protonmail.com\><br>
+ * ### [mczvc-biomew] \<mczvc\@proton.me\><br>
  * Meldencio Czarlemagne Veras Corrales, BSCS
  * <li> Easy Game Graphics, Egg Co. </li>
  */
