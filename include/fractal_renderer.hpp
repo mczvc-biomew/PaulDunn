@@ -1,6 +1,6 @@
 #ifndef FRACTAL_RENDERER_HPP
 /** @file fractal_renderer.hpp
- * <br>Paul Dunn's Bubble Universe 3 as fractal.
+ * <br>Paul Dunn's Bubble Universe 3 as attractor. Topics: Chaos game.
  */
 #define FRACTAL_RENDERER_HPP
 
