@@ -5,7 +5,5 @@ Made using EGG2D and SDL 2.0 ([Cxxdroid](https://play.google.com/store/apps/deta
 `mczvc`
 Meldencio Czarlemagne Veras Corrales ~~--~~ mczvc@proton.me
 
-## Screenshots
+## Screenshot
 ![code](./Screenshot%20from%202022-11-21%2015-15-58.png)
-![code](./Desktop/Screenshot%20from%202022-11-26%2021-28-38.png)
-![code](./Desktop/Screenshot%20from%202022-11-26%2021-35-10.png)
