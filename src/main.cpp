@@ -10,18 +10,21 @@
 #include "fractal_renderer.hpp"
 
 /**
- * SDL2 on Android and Linux. <li> Cxxdroid </li>
+ * SDL2 on Android and Linux.
+ * <li> Cxxdroid </li>
  * <li> CMake </li> <li> SDL2 </li> <li> SDL2_image </li> <li> GLAD </li>
- * <li> Relminator: <u>http://rel.phatcode.net<u> </li> <li> PaulDunn: SpecBasic </li>
+ * <li> Relminator: <u>http://rel.phatcode.net<u> </li>
+ * <li> PaulDunn: SpecBasic </li>
  * <li> Jetbrain's Clion <br><br>
- * ### [mczvc-biomew] \<mczvc\@proton.me\><br>
+ * [mczvc-biomew] \<mczvc\@proton.me\><br>
  * Meldencio Czarlemagne Veras Corrales, BSCS
  * <li> Easy Game Graphics, Egg Co. </li>
  */
 //namespace {
+#define version 0.3.2
 
-int g_targetWidth = 1920;
-int g_targetHeight = 1100;
+int g_targetWidth = 1400;
+int g_targetHeight = 750;
 
 double g_targetAspect = g_targetWidth / static_cast<double>(g_targetHeight);
 
@@ -30,7 +33,7 @@ double g_targetAspect = g_targetWidth / static_cast<double>(g_targetHeight);
 bool paused = false;
 
 int main(int argc, char *argv[]) {
-    bool quit = CreateWindow("Bubble Universe 3.1") != 0;
+    bool quit = CreateWindow("Bubble Universe 3.2") != 0;
 
     if (!quit)
         RendererInit();
