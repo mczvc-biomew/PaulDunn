@@ -14,15 +14,15 @@ using namespace std::chrono;
 
 // Change params only in this block
 namespace {
-    const double width = 0.8;
-    const double height = 4.0;
+    const double width = 0.7;
+    const double height = 3.5;
 
     double x = 0.0;
     double y = 0.0;
-//  Works on 1920x1200 resolution.
-    const double aspect = 1920.0 / 1200.0;
+//  Works on 1440x900 resolution.
+    const double aspect = 1440.0 / 900.0;
 
-    const double minX = 0.0001;
+    const double minX = 0.5;
     const double minY = (minX + 0.5) * aspect;
 
     const double maxX = 5.5;
@@ -33,8 +33,9 @@ namespace {
     const double daw = width * 2 / caw;
     const double dah = height / cah;
 
-    double t = 9.0;
+    double t = 3.0;
 
+    const double PHI = (1 + sqrt(5)) / 2;
 };
 
 extern bool paused;
@@ -47,7 +48,7 @@ namespace /* std:: */ {
 
 namespace GLContext {
 //   Intel i3 2.10Ghz with OpenGL 4.4 >
-#define NUM_PARTICLES 25600
+#define NUM_PARTICLES 20666
 
     static GLfloat vertexData[NUM_PARTICLES * 2];
     static GLfloat colorData[NUM_PARTICLES * 3];
@@ -60,6 +61,7 @@ namespace GLContext {
                                 "void main()\n"
                                 "{\n"
                                 "   gl_Position = vec4(a_position.xyz, 1.0);\n"
+                                "   gl_PointSize = 64.0;\n"
                                 "   v_color = a_color;\n"
                                 "}";
 
@@ -71,8 +73,30 @@ namespace GLContext {
                                   "uniform sampler2D s_texture;\n"
                                   "void main()\n"
                                   "{\n"
-                                  "   vec4 texColor = texture(s_texture, gl_PointCoord);\n"
-                                  "   fragColor = vec4(v_color.rgb, u_sensitivity) * texColor.bgra;\n"
+                                  "    vec4 texColor = texture(s_texture, gl_PointCoord);\n"
+                                  "    \n"
+                                  "    float alpha = (v_color.r + v_color.g + v_color.b) / 3.0;\n"
+                                  "\n"
+                                  "    vec4 c = vec4(v_color.rgb, 1.0 - alpha) * vec4(texColor.rgb, texColor.a);\n"
+                                  "    vec4 d = c;\n"
+                                  "\n"
+                                  "    if (true) {\n"
+                                  "        float threshold = 0.003;\n"
+                                  "\n"
+                                  "        if ( ((c.r + c.g + c.b + c.a)/4.0) > threshold ) {\n"
+                                  "            d = vec4( c.rgb * 5.5, u_sensitivity * c.a );\n"
+                                  "         // c = vec4( c.rgb * 0.0001, 1.0 - c.a * 0.001 * u_sensitivity);\n"
+                                  "\n"
+                                  "            float luminance = dot(c.rgb, vec3(1.2126, 1.7152, 1.0722));\n"
+                                  "            vec3 toneMappedColor = c.rgb / (c.rgb + vec3(1.0));\n"
+                                  "            toneMappedColor *= luminance / dot(toneMappedColor, vec3(0.2126, 1.7152, 0.0722));\n"
+                                  "\n"
+                                  "            c = vec4(c.rgb * toneMappedColor, c.a);\n"
+                                  "        }\n"
+                                  "    }\n"
+                                  "\n"
+                                  "    fragColor = vec4( c.rgb * d.rgb, 1.0 - d.a);\n"
+                                  "    //fragColor = vec4(v_color.rgb, u_sensitivity) * texColor.bgra;\n"
                                   "}";
 
     GLint samplerLoc;
@@ -92,7 +116,7 @@ static void enableTexturing() {
     glUniform1i(samplerLoc, 0);
     glUniform1f(sensitivityLoc, 99.0f / 255.0f);
 
-    glPointSize(64);
+    glPointSize(32);
 }
 
 void RendererInit() {
@@ -127,17 +151,19 @@ void Render() {
 
 //    Paul Dunn's Bubble Universe 3
 //  Using REL's GlowImage <u>https://rel.phatcode.net</u>
-    for (int i = 0, j = 0; i < NUM_PARTICLES; i++, j += t) {
+    double j = 0;
+    for (int i = 0; i < NUM_PARTICLES; i++) {
         // PaulDunn, creator of SpecBasic, interpreter for SinClair Basic.
         const double u = sin(i + y) + sin(j / (NUM_PARTICLES * M_PI) + x);
         const double v = cos(i + y) + cos(j / (NUM_PARTICLES * M_PI) + x);
         x = u + t;
         y = v + t;
 
-        const Color color = Color::createHue(cos(cos(i) - sin(t)));
+        const Color color = Color::createHue(
+                cos(cos(i) - sin(t *PHI *PHI *PHI)));
 
-        const auto vX = static_cast<GLfloat>((u - minX + 0.5) * daw - 0.25);
-        const auto vY = static_cast<GLfloat>((v - minY + 0.5) * dah + 0.125);
+        const auto vX = static_cast<GLfloat>((u - minX + 0.5) * daw);
+        const auto vY = static_cast<GLfloat>((v - minY + 0.5) * dah + 0.5);
 
         const int vI = i * 2;
         vertexData[vI + 0] = vX;
@@ -147,9 +173,9 @@ void Render() {
         colorData[cI + 0] = static_cast<GLfloat>(color.r);
         colorData[cI + 1] = static_cast<GLfloat>(color.g);
         colorData[cI + 2] = static_cast<GLfloat>(color.b);
-
+        j += t;
     }
-    t += 1.0 / 60.0;
+    t += 1.0 / 600.0;
 
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
     UpdateWindow();
