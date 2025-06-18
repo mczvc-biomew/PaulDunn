@@ -1,11 +1,12 @@
 /**
  * @file egg2d.c\n
- * Easy Game Graphics 0.1
+ * Easy Game Graphics 0.0.2
  *
- * [mczvc] (2022) czarm827\@protonmail.com<br><br>
- * Meldencio Czarlemagne Veras Corrales, CS (2nd year)
+ * [mczvc] (2022) mczvc\@proton.me<br><br>
+ * Meldencio Czarlemagne Corrales,
  *
- * <li>https://github.com/mczvc827
+ * <li> https://github.com/mczvc-biomew </li>
+ * <li> https://mczvc-biomew.github.io </li>
  */
 
 #include "egg2d.h"
@@ -154,20 +155,20 @@ int CreateWindow(const char *title) {
 //  Compute the aspect, horizontal or vertical scale, horizontal crop, and vertical crop.
     SDL_GetWindowSize(window, &g_actualWidth, &g_actualHeight);
 
-    g_aspect = (float) g_actualWidth / g_actualHeight;
-    g_cropH = 0.f;
-    g_cropV = 0.0f;
+    g_aspect = (int) ( (float)g_actualWidth / (float)g_actualHeight);
+    g_cropH = 0;
+    g_cropV = 0;
 
     if (g_aspect > g_targetAspect) {
-        g_scale = (float) g_actualWidth / g_targetHeight;
-        g_cropH = (g_actualWidth - g_targetWidth * g_scale) * 0.5f;
+        g_scale = ((float) g_actualWidth / (float)g_targetHeight);
+        g_cropH = (int)((float)(g_actualWidth - (int)((float)g_targetWidth * g_scale)) * 0.5f);
     } else if (g_aspect < g_targetAspect) {
-        g_scale = (float) g_actualWidth / g_targetWidth;
-        g_cropV = (g_actualHeight - g_targetHeight * g_scale) * 0.5f;
-    } else { g_scale = (float) g_actualWidth / g_targetWidth; }
+        g_scale = ((float)g_actualWidth / (float)g_targetWidth);
+        g_cropV = (int)(((float)g_actualHeight - (float)g_targetHeight * g_scale) * 0.5f);
+    } else { g_scale = (float) g_actualWidth / (float) g_targetWidth; }
 
-    g_scaledWidth = g_targetWidth * g_scale;
-    g_scaledHeight = g_targetHeight * g_scale;
+    g_scaledWidth = (int)((float)g_targetWidth * g_scale);
+    g_scaledHeight = (int)((float)g_targetHeight * g_scale);
 
 //  Initialize viewport and shaders
     initViewPort(g_cropH, g_cropV, g_scaledWidth, g_scaledHeight);
@@ -205,6 +206,8 @@ GLuint eggLoadShader(GLenum type, const char *shaderSrc) {
     shader = glCreateShader(type);
 
     if (shader == 0) {
+        fprintf(stderr, "could not create [%s] shader: %s\n",
+                type == GL_VERTEX_SHADER ? "vertex" : "fragment", SDL_GetError());
         return 0;
     }
 //  Set the shader source for compiling.
@@ -240,14 +243,17 @@ GLuint eggLoadShaderProgram(const char *vertexShaderSrc, const char *fragShaderS
 //  Load the vertex shader. On error, the shader was already deleted, so print some status, and return 0;
     GLuint vertexShaderObj = eggLoadShader(GL_VERTEX_SHADER, vertexShaderSrc);
     if (vertexShaderObj == 0) {
-        fprintf(stderr, "There's an error compiling the vertexShaderObj shader.\n");
+        fprintf(stderr,
+                "There's an error compiling the vertex-shader [obj].\n");
+        GL_CHECK();
         return 0;
     }
 //  Load the fragment shader. Same for the fragment shader, fragment shader was already deleted,
 //  so print some error status, and return 0.
     GLuint fragmentShaderObj = eggLoadShader(GL_FRAGMENT_SHADER, fragShaderSrc);
     if (fragmentShaderObj == 0) {
-        fprintf(stderr, "There's an error compiling the fragmentShaderObj.\n");
+        fprintf(stderr,
+                "There's an error compiling the fragment-shader [obj].\n");
         return 0;
     }
 
@@ -274,7 +280,7 @@ GLuint eggLoadShaderProgram(const char *vertexShaderSrc, const char *fragShaderS
             char *infoLog = (char *) malloc(sizeof(char) * infoLen);
 
             glGetProgramInfoLog(shaderProgramObj, infoLen, NULL, infoLog);
-            fprintf(stderr, "Error linking shaderProgramObj\n%s\n", infoLog);
+            fprintf(stderr, "Error linking shader-program [obj]\n%s\n", infoLog);
 
             free(infoLog);
         }
@@ -367,7 +373,7 @@ GLuint GetGlowImage() {
         glBindTexture(GL_TEXTURE_2D, textureID);
 
         int width, height;
-        char *bytes = eggLoadPCM(NULL, "./glow_image.pcm", &width, &height);
+        char *bytes = eggLoadPCM(NULL, "../glow_image.pcm", &width, &height);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height,
                      0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
@@ -391,7 +397,7 @@ char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int 
     fp = eggFileOpen(ioContext, fileName);
 
     if (fp == NULL) {
-        eggLogMessage("eggLoadPCM FAILED to load: { %s }\n", fileName);
+        eggLogMessage("[eggLoadPCM] FAILED to load: { %s }\n", fileName);
         return NULL;
     }
 

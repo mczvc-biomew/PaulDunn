@@ -1,12 +1,15 @@
 #ifndef EGG_H_INCLUDED
 /**
- * @file egg2d.h\n
- * Easy Game Graphics 0.1
+ * @file egg2d.h
+ * @description
+ * Easy Game Graphics 0.0.2
  *
  * [mczvc] (2022) mczvc\@proton.me<br><br>
- * Meldencio Czarlemagne Veras Corrales, CS (2nd year)
+ * Meldencio Czarlemagne Corrales,
  *
- * <li>https://github.com/mczvc827
+ * <li> https://github.com/mczvc-biomew </li>
+ * <li> https://mczvc-biomew.github.io </li>
+* <li>https://github.com/mczvc827
  */
 #define EGG_H_INCLUDED
 
@@ -47,7 +50,7 @@ extern double g_targetAspect;
 
 static int g_actualWidth, g_actualHeight;
 static int g_aspect;
-static int g_scale;
+static float g_scale;
 static int g_scaledWidth, g_scaledHeight;
 static int g_cropH, g_cropV;
 
