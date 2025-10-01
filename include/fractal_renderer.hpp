@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <vector>
+#include <chrono>
 
 #include <SDL2/SDL.h>
 
@@ -15,5 +16,7 @@
 void RendererInit();
 
 void Render();
+
+void Shutdown();
 
 #endif
