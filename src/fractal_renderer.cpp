@@ -36,6 +36,9 @@ namespace {
     double t = 3.0;
 
     const double PHI = (1 + sqrt(5)) / 2;
+
+    unsigned int totalFrames = 0;
+    unsigned long totalTimeMS;
 };
 
 extern bool paused;
@@ -144,7 +147,31 @@ void RendererInit() {
     enableTexturing();
 }
 
+void updateTiming(const time_point<system_clock, milliseconds> lastFrameTime) {
+
+    static unsigned int latency = 0;
+    static unsigned long elapsedMS = 0;
+    static unsigned int frames;
+
+    const auto elapsed = std::chrono::duration_cast<milliseconds>(clock_now() - lastFrameTime).count();
+    if (elapsed > latency) {
+        latency = elapsed;
+    }
+    elapsedMS += elapsed;
+    totalTimeMS += elapsed;
+
+    if (elapsedMS >= 1000) {
+        eggLogMessage("%d FPS, %dms lagged\n", frames, latency);
+        frames = 0;
+        elapsedMS = 0;
+        latency = 0;
+    }
+    frames++;
+    totalFrames++;
+}
+
 void Render() {
+    const auto lastTime = clock_now();
 
     if (paused) return;
     ClearScreen();
@@ -178,6 +205,13 @@ void Render() {
     t += 1.0 / 600.0;
 
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
+
+    updateTiming(std::chrono::time_point_cast<milliseconds, system_clock>( lastTime));
+
     UpdateWindow();
 
+}
+
+void Shutdown() {
+    eggLogMessage("Rendered %d frames over %.2fs\n", totalFrames, (double)totalTimeMS / 1000.0);
 }
