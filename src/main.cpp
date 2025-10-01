@@ -54,6 +54,8 @@ int main(int argc, char *argv[]) {
         Render();
     }
 
+    Shutdown();
+
     EGG_Quit();
     return 0;
 }
