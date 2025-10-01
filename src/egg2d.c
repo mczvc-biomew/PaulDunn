@@ -1,13 +1,20 @@
 /**
- * @file egg2d.c\n
- * Easy Game Graphics 0.0.2
+ * > @file egg2d.c\n
+ * Easy Game Graphics v0.0.3
  *
- * [mczvc] (2022) mczvc\@proton.me<br><br>
- * Meldencio Czarlemagne Corrales,
+ * [Maintainer]:
+ *
+ * (c) 2022-2025 [mczvc](mailto:mczvc\@proton.me)<br><br>
+ * <b>Meldencio Czarlemagne Corrales</b>,
  *
  * <li> https://github.com/mczvc-biomew </li>
- * <li> https://mczvc-biomew.github.io </li>
+ * <li> https://mczvc-biomew.github.io/mczvc </li><br>
+ *
+ * <h2>[PicoSoft]:</h2>
+ *
+ * <li> https://mczvc-biomew.github.io/picosoft </li>
  */
+#define EGG_VERSION 0x000003
 
 #include "egg2d.h"
 
@@ -22,6 +29,10 @@ typedef FILE eggFile;
 static SDL_Surface *screenSurface = NULL;
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
+
+static void  *assetsBuffer[13];
+static char assetsIndex = 0;
+static GLuint memoryUsage = 0;
 
 #ifndef __APPLE__
 #pragma pack(push, x1)
@@ -196,6 +207,7 @@ int CreateWindow(const char *title) {
 void EGG_Quit() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    eggUnload();
     SDL_Quit();
 }
 
@@ -355,9 +367,16 @@ static int eggFileRead(eggFile *pFile, int bytesToRead, void *buffer) {
     bytesRead = fread(buffer, bytesToRead, 1, pFile);
 #endif
 
-    return bytesRead;
+    return bytesRead == 0 ? bytesToRead : bytesRead;
 }
 
+void acquireAssetToMemory(void *bytes, unsigned int size) {
+    assetsBuffer[assetsIndex] = bytes;
+    assetsIndex ++;
+    memoryUsage += size;
+
+    eggLogMessage("Using %d bytes of memory\n", memoryUsage);
+}
 /**
  * REL's Glow-Image.
  * <li><u>https://rel.phatcode.net</li>
@@ -374,6 +393,11 @@ GLuint GetGlowImage() {
 
         int width, height;
         char *bytes = eggLoadPCM(NULL, "../glow_image.pcm", &width, &height);
+
+        if (bytes == NULL) {
+            eggLogMessage("[GetGlowImage] unable to open %s", "../glow_image.pcm");
+            return 0;
+        }
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height,
                      0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
@@ -414,12 +438,24 @@ char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int 
 
         if (buffer) {
             bytesRead = eggFileRead(fp, bytesToRead, buffer);
+            acquireAssetToMemory(buffer, bytesRead);
             eggFileClose(fp);
 
             return (buffer);
         }
     }
     return (NULL);
+}
+
+/**
+ * Try deallocating memory.
+ */
+void eggUnload() {
+    eggLogMessage("Freeing up resources..");
+    for (int ai = 0; ai < assetsIndex; ai++) {
+        if (assetsBuffer[ai] != NULL) { free(assetsBuffer[ai]); }
+    }
+    eggLogMessage(" %d KBs freed!\n Bye!\n", memoryUsage / 1024);
 }
 
 /**
