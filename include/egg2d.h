@@ -66,6 +66,8 @@ void EGG_API eggLogMessage(const char *formatStr, ...);
 
 char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int *height);
 
+void eggUnload();
+
 GLuint GetGlowImage();
 
 void UpdateWindow();
