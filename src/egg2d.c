@@ -18,14 +18,6 @@
 
 #include "egg2d.h"
 
-#ifdef ANDROID
-#include <android/log.h>
-#include <android/asset_manager.h>
-typedef AAsset eggFile;
-#else
-typedef FILE eggFile;
-#endif
-
 static SDL_Surface *screenSurface = NULL;
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -70,7 +62,7 @@ static void initViewPort(int originX, int originY, int width, int height) {
 /**
  * Initialized OpenGL default 2D
  */
-static void init2D() {
+static int init2D() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -106,6 +98,7 @@ static void init2D() {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+    return 0;
 }
 
 /**
@@ -139,7 +132,8 @@ int CreateWindow(const char *title) {
 #endif
 
     window = SDL_CreateWindow(title, 0, 0,
-                              g_targetWidth, g_targetHeight, SDL_WINDOW_OPENGL);
+                              g_targetWidth, g_targetHeight,
+                              SDL_WINDOW_OPENGL);
     if (!window) {
         fprintf(stderr, "SDL_CreateWindow error: %s\n", SDL_GetError());
         SDL_Quit();
@@ -149,10 +143,21 @@ int CreateWindow(const char *title) {
 
 #if !defined(__ANDROID__)
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer == NULL) {
+        fprintf(stderr, "There was an error creating renderer (%s)\n", SDL_GetError());
+        return -1;
+    }
 #endif
+
 
 //  We will not actually need a context created, but we should create one
     SDL_GLContext gl = SDL_GL_CreateContext(window);
+
+    if (gl == NULL) {
+        fprintf(stderr, "There was an error creating GL_Context (%s)", SDL_GetError());
+        return -1;
+    }
+
     SDL_GL_MakeCurrent(window, gl);
 
 #if !defined(__ANDROID__)
@@ -194,14 +199,12 @@ int CreateWindow(const char *title) {
 #if !defined(__ANDROID__)
     screenSurface = SDL_GetWindowSurface(window);
     if (!screenSurface) {
-        fprintf(stderr, "could not get window surface: %s\n", SDL_GetError());
+        fprintf(stderr, "Could not get window surface: %s\n", SDL_GetError());
         return -1;
     }
 #endif
 
-    init2D();
-
-    return 0;
+    return init2D();
 }
 
 void EGG_Quit() {
@@ -211,7 +214,7 @@ void EGG_Quit() {
     SDL_Quit();
 }
 
-GLuint eggLoadShader(GLenum type, const char *shaderSrc) {
+GLuint eggCompileShader(GLenum type, const char *shaderSrc) {
     GLuint shader;
     GLint compiled;
 //  Create new shader object.
@@ -236,7 +239,7 @@ GLuint eggLoadShader(GLenum type, const char *shaderSrc) {
 
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
 
-        if (infoLen > -1) {
+        if (infoLen > 0) {
             char *infoLog = (char *) malloc(sizeof(char) * infoLen);
             glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
             fprintf(stderr, "%s", infoLog);
@@ -250,29 +253,14 @@ GLuint eggLoadShader(GLenum type, const char *shaderSrc) {
     return shader;
 }
 
-GLuint eggLoadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc) {
+GLuint eggShaderCreateProgram(GLuint vertexShaderObj, GLuint fragmentShaderObj) {
     GLint linked; // link status
-//  Load the vertex shader. On error, the shader was already deleted, so print some status, and return 0;
-    GLuint vertexShaderObj = eggLoadShader(GL_VERTEX_SHADER, vertexShaderSrc);
-    if (vertexShaderObj == 0) {
-        fprintf(stderr,
-                "There's an error compiling the vertex-shader [obj].\n");
-        GL_CHECK();
-        return 0;
-    }
-//  Load the fragment shader. Same for the fragment shader, fragment shader was already deleted,
-//  so print some error status, and return 0.
-    GLuint fragmentShaderObj = eggLoadShader(GL_FRAGMENT_SHADER, fragShaderSrc);
-    if (fragmentShaderObj == 0) {
-        fprintf(stderr,
-                "There's an error compiling the fragment-shader [obj].\n");
-        return 0;
-    }
 
 //  Combine the shaders into shader program. On error, print some error status, and return 0.
     GLuint shaderProgramObj = glCreateProgram();
     if (shaderProgramObj == 0) {
         fprintf(stderr, "There's an error creating shader shaderProgramObj.\n");
+        GL_CHECK();
         return 0;
     }
 //  Attach both vertex and fragment shader for program compiling.
@@ -299,11 +287,6 @@ GLuint eggLoadShaderProgram(const char *vertexShaderSrc, const char *fragShaderS
         glDeleteProgram(shaderProgramObj);
         return 0;
     }
-//  Finally delete the vertex and fragment shader.
-//  Shader object will be return and pass the program deletion to the user.
-    glDeleteShader(vertexShaderObj);
-    glDeleteShader(fragmentShaderObj);
-
     return shaderProgramObj;
 }
 
@@ -328,7 +311,7 @@ void EGG_API eggLogMessage(const char *formatStr, ...) {
     va_end(params);
 }
 
-static eggFile *eggFileOpen(void *ioContext, const char *fileName) {
+EGG_API eggFile *eggFileOpen(void *ioContext, const char *fileName) {
     eggFile *pFile = NULL;
 
 #ifdef ANDROID
@@ -343,7 +326,7 @@ static eggFile *eggFileOpen(void *ioContext, const char *fileName) {
     return pFile;
 }
 
-static void eggFileClose(eggFile *pFile) {
+EGG_API void eggFileClose(eggFile *pFile) {
     if (pFile != NULL) {
 #ifdef ANDROID
         AAsset_close(pFile);
@@ -354,7 +337,7 @@ static void eggFileClose(eggFile *pFile) {
     }
 }
 
-static int eggFileRead(eggFile *pFile, int bytesToRead, void *buffer) {
+EGG_API int eggFileRead(eggFile *pFile, int bytesToRead, void *buffer) {
     int bytesRead = 0;
 
     if (pFile == NULL) {
@@ -392,10 +375,10 @@ GLuint GetGlowImage() {
         glBindTexture(GL_TEXTURE_2D, textureID);
 
         int width, height;
-        char *bytes = eggLoadPCM(NULL, "../glow_image.pcm", &width, &height);
+        char *bytes = eggLoadPCM(NULL, "./glow_image.pcm", &width, &height);
 
         if (bytes == NULL) {
-            eggLogMessage("[GetGlowImage] unable to open %s", "../glow_image.pcm");
+            eggLogMessage("[GetGlowImage] unable to open glow image..\n");
             return 0;
         }
 
@@ -445,6 +428,29 @@ char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int 
         }
     }
     return (NULL);
+}
+
+char* frameBufferToTexture(GLuint framebuffer, GLsizei width, GLsizei height) {
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    int texLength = width * height * 4;
+    char *texture = (char *) malloc(texLength);
+
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_FLOAT, texture);
+    return texture;
+}
+
+GLint eggGetUniforms(GLuint program) {
+    GLint params;
+    GL_CHECK(glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &params));
+
+    for (int i = 0; i < params; i++) {
+        GLsizei len;
+        GLchar name[64];
+        glGetActiveUniformName(program, i, 64, &len, name);
+        SDL_Log("Uniform '%s'; ", name);
+    }
+
+    return params;
 }
 
 /**
