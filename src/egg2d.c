@@ -1,6 +1,6 @@
 /**
  * > @file egg2d.c\n
- * Easy Game Graphics v0.0.3
+ * Easy Game Graphics v0.3.4
  *
  * [Maintainer]:
  *
