@@ -14,7 +14,7 @@
  *
  * <li> https://mczvc-biomew.github.io/picosoft </li>
  */
-#define EGG_VERSION 0x000003
+#define EGG_VERSION 0x000304
 
 #include "egg2d.h"
 
@@ -49,14 +49,29 @@ typedef struct {
 #endif
 
 /**
- * Init OpenGL viewport
- * @param originX the viewport origin on left
- * @param originY the viewport origin on top
- * @param width the viewport's width
- * @param height the viewport' height
+ * Initialize OpenGL viewport
  */
-static void initViewPort(int originX, int originY, int width, int height) {
-    glViewport(originX, originY, width, height);
+static void initViewPort() {
+
+//  Compute the aspect, horizontal or vertical scale, horizontal crop, and vertical crop.
+    SDL_GetWindowSize(window, &g_actualWidth, &g_actualHeight);
+
+    g_aspect = (int) ( (float)g_actualWidth / (float)g_actualHeight);
+    g_cropH = 0;
+    g_cropV = 0;
+
+    if (g_aspect > g_targetAspect) {
+        g_scale = ((float) g_actualWidth / (float)g_targetHeight);
+        g_cropH = (int)((float)(g_actualWidth - (int)((float)g_targetWidth * g_scale)) * 0.5f);
+    } else if (g_aspect < g_targetAspect) {
+        g_scale = ((float)g_actualWidth / (float)g_targetWidth);
+        g_cropV = (int)(((float)g_actualHeight - (float)g_targetHeight * g_scale) * 0.5f);
+    } else { g_scale = (float) g_actualWidth / (float) g_targetWidth; }
+
+    g_scaledWidth = (int)((float)g_targetWidth * g_scale);
+    g_scaledHeight = (int)((float)g_targetHeight * g_scale);
+
+    glViewport(g_cropH, g_cropV, g_scaledWidth, g_scaledHeight);
 }
 
 /**
@@ -168,26 +183,8 @@ int CreateWindow(const char *title) {
     }
 #endif
 
-//  Compute the aspect, horizontal or vertical scale, horizontal crop, and vertical crop.
-    SDL_GetWindowSize(window, &g_actualWidth, &g_actualHeight);
-
-    g_aspect = (int) ( (float)g_actualWidth / (float)g_actualHeight);
-    g_cropH = 0;
-    g_cropV = 0;
-
-    if (g_aspect > g_targetAspect) {
-        g_scale = ((float) g_actualWidth / (float)g_targetHeight);
-        g_cropH = (int)((float)(g_actualWidth - (int)((float)g_targetWidth * g_scale)) * 0.5f);
-    } else if (g_aspect < g_targetAspect) {
-        g_scale = ((float)g_actualWidth / (float)g_targetWidth);
-        g_cropV = (int)(((float)g_actualHeight - (float)g_targetHeight * g_scale) * 0.5f);
-    } else { g_scale = (float) g_actualWidth / (float) g_targetWidth; }
-
-    g_scaledWidth = (int)((float)g_targetWidth * g_scale);
-    g_scaledHeight = (int)((float)g_targetHeight * g_scale);
-
-//  Initialize viewport and shaders
-    initViewPort(g_cropH, g_cropV, g_scaledWidth, g_scaledHeight);
+//  Initialize viewport
+    initViewPort();
 
 //  Print the OpenGL vendor, renderer, and version.
     //printf("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
@@ -295,7 +292,7 @@ GLuint eggShaderCreateProgram(GLuint vertexShaderObj, GLuint fragmentShaderObj) 
  * @param formatStr
  * @param ...
  */
-void EGG_API eggLogMessage(const char *formatStr, ...) {
+EGG_API void eggLogMessage(const char *formatStr, ...) {
     va_list params;
     char buf[BUFSIZ];
 
@@ -395,7 +392,7 @@ GLuint GetGlowImage() {
     return textureID;
 }
 
-char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int *height) {
+EGG_API char *eggLoadPCM(void *ioContext, const char *fileName, int *width, int *height) {
     char *buffer;
     eggFile *fp;
     PCM_HEADER Header;
