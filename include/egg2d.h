@@ -1,14 +1,13 @@
 #ifndef EGG_H_INCLUDED
 /**
- * @file egg2d.h
- * @description
- * Easy Game Graphics 0.0.2
+ * @file egg2d.h\n
+ * Easy Game Graphics v0.3.4
  *
- * [mczvc] (2022) mczvc\@proton.me<br><br>
- * Meldencio Czarlemagne Corrales,
+ * (c) 2022-2025 [mczvc](mailto:mczvc\@proton.me)<br><br>
+ * <b>Meldencio Czarlemagne Corrales</b>,
  *
  * <li> https://github.com/mczvc-biomew </li>
- * <li> https://mczvc-biomew.github.io </li>
+ * <li> https://mczvc-biomew.github.io/mczvc </li>
  */
 #define EGG_H_INCLUDED
 
