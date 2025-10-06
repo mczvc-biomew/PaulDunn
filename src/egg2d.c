@@ -334,8 +334,8 @@ EGG_API void eggFileClose(eggFile *pFile) {
     }
 }
 
-EGG_API int eggFileRead(eggFile *pFile, int bytesToRead, void *buffer) {
-    int bytesRead = 0;
+EGG_API size_t eggFileRead(eggFile *pFile, int bytesToRead, void *buffer) {
+    unsigned long bytesRead = 0;
 
     if (pFile == NULL) {
         return bytesRead;
