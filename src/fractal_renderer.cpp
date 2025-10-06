@@ -57,50 +57,6 @@ namespace GLContext {
     static GLfloat colorData[NUM_PARTICLES * 3];
 
 // OpenGL ES 2.0 uses shaders
-    const char *VERTEX_SHADER = "#version 330 core\n"
-                                "attribute vec4 a_position;\n"
-                                "attribute vec4 a_color;\n"
-                                "varying vec4 v_color;\n"
-                                "void main()\n"
-                                "{\n"
-                                "   gl_Position = vec4(a_position.xyz, 1.0);\n"
-                                "   gl_PointSize = 64.0;\n"
-                                "   v_color = a_color;\n"
-                                "}";
-
-    const char *FRAGMENT_SHADER = "#version 330 core\n"
-                                  "precision mediump float;\n"
-                                  "varying vec4 v_color;\n"
-                                  "layout(location = 0) out vec4 fragColor;\n"
-                                  "uniform float u_sensitivity;\n"
-                                  "uniform sampler2D s_texture;\n"
-                                  "void main()\n"
-                                  "{\n"
-                                  "    vec4 texColor = texture(s_texture, gl_PointCoord);\n"
-                                  "    \n"
-                                  "    float alpha = (v_color.r + v_color.g + v_color.b) / 3.0;\n"
-                                  "\n"
-                                  "    vec4 c = vec4(v_color.rgb, 1.0 - alpha) * vec4(texColor.rgb, texColor.a);\n"
-                                  "    vec4 d = c;\n"
-                                  "\n"
-                                  "    if (true) {\n"
-                                  "        float threshold = 0.003;\n"
-                                  "\n"
-                                  "        if ( ((c.r + c.g + c.b + c.a)/4.0) > threshold ) {\n"
-                                  "            d = vec4( c.rgb * 5.5, u_sensitivity * c.a );\n"
-                                  "         // c = vec4( c.rgb * 0.0001, 1.0 - c.a * 0.001 * u_sensitivity);\n"
-                                  "\n"
-                                  "            float luminance = dot(c.rgb, vec3(1.2126, 1.7152, 1.0722));\n"
-                                  "            vec3 toneMappedColor = c.rgb / (c.rgb + vec3(1.0));\n"
-                                  "            toneMappedColor *= luminance / dot(toneMappedColor, vec3(0.2126, 1.7152, 0.0722));\n"
-                                  "\n"
-                                  "            c = vec4(c.rgb * toneMappedColor, c.a);\n"
-                                  "        }\n"
-                                  "    }\n"
-                                  "\n"
-                                  "    fragColor = vec4( c.rgb * d.rgb, 1.0 - d.a);\n"
-                                  "    //fragColor = vec4(v_color.rgb, u_sensitivity) * texColor.bgra;\n"
-                                  "}";
 
     GLint samplerLoc;
     GLint sensitivityLoc;
@@ -124,12 +80,61 @@ static void enableTexturing() {
 
 void RendererInit() {
     // Creates new OpenGL shader, (330 core)
-    GLuint program = eggLoadShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-    if (program == 0) {
+
+//  Read vertex shader source.
+    eggFile *fp = eggFileOpen(nullptr, "./basic.vs");
+    int vertexBytesLen = sizeof(char) * 1024;
+    char *vertexShaderSrc = (char *) malloc(vertexBytesLen);
+
+    int bytesRead = eggFileRead(fp, vertexBytesLen, vertexShaderSrc);
+
+//  Compile the vertex shader.
+    GLuint vertexShaderObj = eggCompileShader(GL_VERTEX_SHADER, vertexShaderSrc);
+
+    eggFileClose(fp);
+    free(vertexShaderSrc);
+
+    if (vertexShaderObj == 0) {
+        fprintf(stderr,
+                "There's an error compiling the vertex-shader [obj].\n");
+        GL_CHECK();
         SDL_Quit();
     }
-    // Use it
+
+//  Read fragment source.
+    fp = eggFileOpen(nullptr, "./basic.fs");
+    int fragmentBytesLen = sizeof(char) * 4096;
+    char *fragmentShaderSrc = (char *) malloc(fragmentBytesLen);
+
+    bytesRead = eggFileRead(fp, fragmentBytesLen, fragmentShaderSrc);
+//  Compile the fragment shader.
+    GLuint fragmentShaderObj = eggCompileShader(GL_FRAGMENT_SHADER, fragmentShaderSrc);
+
+    eggFileClose(fp);
+    free(fragmentShaderSrc);
+
+    if (fragmentShaderObj == 0) {
+        fprintf(stderr,
+                "There's an error compiling the fragment-shader [obj].\n");
+        GL_CHECK();
+        SDL_Quit();
+    }
+
+    GLuint program = eggShaderCreateProgram(vertexShaderObj, fragmentShaderObj);
+
+//  Finally delete the vertex and fragment shader.
+    glDeleteShader(vertexShaderObj);
+    glDeleteShader(fragmentShaderObj);
+    if (program == 0) {
+        fprintf(stderr, "There was an error creating shader program.\n");
+        GL_CHECK();
+        SDL_Quit();
+    }
+    // Use the shader-program for the first time;
     glUseProgram(program);
+
+    eggLogMessage("Uniforms: %d\n", eggGetUniforms(program));
+
     glDeleteProgram(program);
 
     samplerLoc = glGetUniformLocation(program, "s_texture");
