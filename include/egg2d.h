@@ -75,9 +75,9 @@ GLuint eggShaderCreateProgram(GLuint vertexShaderObj, GLuint fragmentShaderObj);
 
 GLint eggGetUniforms(GLuint program);
 
-void EGG_API eggLogMessage(const char *formatStr, ...);
+EGG_API void eggLogMessage(const char *formatStr, ...);
 
-char *EGG_API eggLoadPCM(void *ioContext, const char *fileName, int *width, int *height);
+EGG_API char *eggLoadPCM(void *ioContext, const char *fileName, int *width, int *height);
 
 void eggUnload();
 
