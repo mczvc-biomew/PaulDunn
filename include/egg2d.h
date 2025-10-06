@@ -54,7 +54,7 @@ typedef FILE eggFile;
 
 EGG_API eggFile *eggFileOpen(void *ioContext, const char *fileName);
 EGG_API void eggFileClose(eggFile *pFile);
-EGG_API int eggFileRead(eggFile *pFile, int bytesToRead, void *buffer);
+EGG_API size_t eggFileRead(eggFile *pFile, int bytesToRead, void *buffer);
 
 extern int g_targetWidth, g_targetHeight;
 extern double g_targetAspect;
