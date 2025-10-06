@@ -9,7 +9,6 @@
  *
  * <li> https://github.com/mczvc-biomew </li>
  * <li> https://mczvc-biomew.github.io </li>
-* <li>https://github.com/mczvc827
  */
 #define EGG_H_INCLUDED
 
@@ -30,6 +29,14 @@ extern "C" {
 
 //  Macros
 
+#ifdef ANDROID
+#include <android/log.h>
+#include <android/asset_manager.h>
+typedef AAsset eggFile;
+#else
+typedef FILE eggFile;
+#endif
+
 #ifdef WIN32
 #define EGG_API __cdecl
 #else
@@ -45,6 +52,11 @@ extern "C" {
         }           \
     }
 
+
+EGG_API eggFile *eggFileOpen(void *ioContext, const char *fileName);
+EGG_API void eggFileClose(eggFile *pFile);
+EGG_API int eggFileRead(eggFile *pFile, int bytesToRead, void *buffer);
+
 extern int g_targetWidth, g_targetHeight;
 extern double g_targetAspect;
 
@@ -58,9 +70,11 @@ int CreateWindow(const char *title);
 
 void ClearScreen();
 
-GLuint eggLoadShader(GLenum type, const char *shaderSrc);
+GLuint eggCompileShader(GLenum type, const char *shaderSrc);
 
-GLuint eggLoadShaderProgram(const char *vertexShaderSrc, const char *fragShaderSrc);
+GLuint eggShaderCreateProgram(GLuint vertexShaderObj, GLuint fragmentShaderObj);
+
+GLint eggGetUniforms(GLuint program);
 
 void EGG_API eggLogMessage(const char *formatStr, ...);
 
