@@ -4,6 +4,8 @@
 using namespace std;
 using namespace std::chrono;
 
+//#define TEST_ONE
+
 class AttractorSet {
 private:
     double x, y;
@@ -50,7 +52,12 @@ public:
 namespace CGameGLContext {
 // OpenGL ES 2.0 uses shaders
 //   Intel i3 2.10Ghz with OpenGL 4.4 >
-    constexpr int NUM_PARTICLES = 110240 * 3;
+    constexpr int NUM_PARTICLES = 110240
+#ifdef TEST_ONE
+    * 1;
+#else
+    * 3;
+#endif
 
     // Packed data storage is better than non-contiguous memory layout!
     static GLfloat attractor2Data[NUM_PARTICLES * (2 + 2)];
@@ -145,7 +152,13 @@ static void step() {
     const double aDelta = abs(a - aUpperBounds);
     constexpr double EPSILON = 0.01;
 
-    if (dataSent > screenBackPressure * 0.005*3) {
+    if (dataSent > screenBackPressure * 0.005
+#ifdef TEST_ONE
+    *1
+#else
+    *3
+#endif
+    ) {
         a = a + tDir * 24.0 * 3.125 * sin(sin(t) * M_PI / 32.0);
         glUniform1f(CGameGLContext::angleLoc, (float)std::sin(t *PHI *PHI *PHI));
         dream.setX(x);
@@ -286,10 +299,19 @@ static void updateTiming(const time_point<system_clock, milliseconds> lastFrameT
 /**
  * Render loop.
  */
-void RenderCGame() {
+bool RenderCGame() {
     static chrono::system_clock::time_point lastTime = clock_now();
+    static chrono::system_clock::time_point lastDrawTime = clock_now();
 
-    if (paused) return;
+
+#if defined(TEST_ONE) || defined(TEST_THREE)
+    const long timeDuration = chrono::duration_cast<milliseconds>(
+            clock_now() - chrono::time_point_cast<milliseconds, system_clock>(
+                    lastTime)).count();
+    const double timeSecs = (double) timeDuration * 0.001;
+#endif
+
+    if (paused) return true;
 
     if (dataSent > screenBackPressure) {
         ClearScreen();
@@ -297,15 +319,21 @@ void RenderCGame() {
         isScreenDirty = true;
     }
     UpdateWindow();
-    lastTime = clock_now();
     step();
     glDrawArrays(GL_POINTS, 0, CGameGLContext::NUM_PARTICLES);
     dataSent += dream.getIterations();
     frameCounter += 1;
 
-    updateTiming(std::chrono::time_point_cast<milliseconds, system_clock>( lastTime));
-//    paused = true;
-
+    updateTiming(std::chrono::time_point_cast<milliseconds, system_clock>( lastDrawTime));
+    lastDrawTime = clock_now();
+#if defined(TEST_ONE) || defined(TEST_THREE)
+//    printf("%lf\n", timeSecs);
+    if (timeSecs > 10) {
+        paused = true;
+        return false;
+    }
+#endif
+    return true;
 }
 
 void ShutdownCGame() {
