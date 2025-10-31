@@ -50,13 +50,11 @@ public:
 namespace CGameGLContext {
 // OpenGL ES 2.0 uses shaders
 //   Intel i3 2.10Ghz with OpenGL 4.4 >
-    constexpr int NUM_PARTICLES = 110240;
+    constexpr int NUM_PARTICLES = 110240 * 3;
 
-//    static GLfloat vertexData[NUM_PARTICLES * 2];
-//    static GLfloat prevVertexData[NUM_PARTICLES * 2];
+    // Packed data storage is better than non-contiguous memory layout!
     static GLfloat attractor2Data[NUM_PARTICLES * (2 + 2)];
     static GLint idData[NUM_PARTICLES];
-
 
     GLint samplerLoc;
     GLint sensitivityLoc;
@@ -66,7 +64,9 @@ namespace CGameGLContext {
 
 namespace Parameters {
 
-    AlphaAttractor dream {0.1, 0.1, -0.976918, 2.870979, 0.718145, 0.642928,
+    AlphaAttractor dream {0.1, 0.1,
+                          -0.976918, 2.870979,
+                          0.718145, 0.642928,
                           CGameGLContext::NUM_PARTICLES};
 
     double x = dream.getX();
@@ -89,8 +89,9 @@ namespace Parameters {
     const double dah = height / cah;
     double t = 3.0;
 
-    const double aBounds = 5.1;
-    constexpr uint screenBackPressure = 11000000;
+    const double aUpperBounds = 5.1;
+    const double aLowerBounds = 24.5;
+    constexpr uint screenBackPressure = 10000000;
     bool isScreenDirty = false;
 
     uint dataSent = 0;
@@ -145,17 +146,19 @@ static void step() {
 
     }
     static double tDir = 1.0 / 600.0;
-    if (isScreenDirty) {
+    const double aDelta = abs(a - aUpperBounds);
+    constexpr double EPSILON = 0.001;
+    if (dataSent > screenBackPressure * 0.005*3) {
         a = a + tDir * 24.0 * 3.125 * sin(sin(t) * M_PI / 32.0);
+        glUniform1f(CGameGLContext::angleLoc, (float)std::sin(t *PHI *PHI *PHI));
+        dream.setX(x);
+        dream.setY(y);
+//        printf("%f\n", abs(aDelta - aLowerBounds));
     }
 //    printf("%f\n", dream.getA());
 //    dream.setB(dream.getB() + 0.1 * sin(sin(t) * M_PI/32.0));
-    glUniform1f(CGameGLContext::angleLoc, (float)std::sin(t *PHI *PHI *PHI));
-    dream.setX(x);
-    dream.setY(y);
-    if (a - aBounds < -(aBounds + 5.0)) {
-//        printf("%f\n", a - aBounds);
-        tDir *= -1.0;
+    if (aDelta < 0.01 || abs(aDelta - aLowerBounds) > aLowerBounds) {
+        tDir = -(tDir - 1.0);
     }
     t += tDir;
     isScreenDirty = false;
@@ -255,6 +258,8 @@ void InitCGame() {
     glVertexAttribPointer(id, 1, GL_INT, GL_TRUE, 0, CGameGLContext::idData);
 
     enableTexturing();
+    setBackgroundColor(0.0f, 0.2f, 0.2f, 0.0f);
+    ClearScreen();
     step();
 }
 
@@ -298,11 +303,11 @@ void RenderCGame() {
         dataSent -= screenBackPressure;
         isScreenDirty = true;
     }
-    glDrawArrays(GL_POINTS, 0, CGameGLContext::NUM_PARTICLES);
     UpdateWindow();
 //        printf("%f %d\n", timeSecs, totalFrames);
     lastTime = clock_now();
     step();
+    glDrawArrays(GL_POINTS, 0, CGameGLContext::NUM_PARTICLES);
     dataSent += dream.getIterations();
     frameCounter += 1;
 
