@@ -67,6 +67,8 @@ static int g_cropH, g_cropV;
 
 int CreateWindow(const char *title);
 
+
+void setBackgroundColor(float red, float green, float blue, float alpha);
 void ClearScreen();
 
 GLuint eggCompileShader(GLenum type, const char *shaderSrc);
