@@ -16,7 +16,7 @@
 
 void InitCGame();
 
-void RenderCGame();
+bool RenderCGame();
 
 void ShutdownCGame();
 
