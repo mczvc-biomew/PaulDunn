@@ -13,36 +13,36 @@ public:
     void setX(double value) { x = value; }
     void setY(double value) { y = value; }
 
-    double getX() { return x; }
-    double getY() { return y; }
+    double getX() const { return x; }
+    double getY() const { return y; }
 
 };
 
 class AlphaAttractor: public AttractorSet {
 private:
-    double a, b, c, d;
+    double m_a, m_b, m_c, m_d;
     int iters;
 public:
     AlphaAttractor(double x, double y,
                    double a, double b, double c, double d, int iters):
-            AttractorSet(x, y), a(a), b(b), c(c), d(d), iters(iters) { }
-    double getA() const { return a; }
-    double getB() const { return b; }
-    double getC() const { return c; }
-    double getD() const { return d; }
+            AttractorSet(x, y), m_a(a), m_b(b), m_c(c), m_d(d), iters(iters) { }
+    double getA() const { return m_a; }
+    double getB() const { return m_b; }
+    double getC() const { return m_c; }
+    double getD() const { return m_d; }
 
     int getIterations() const { return iters; }
 
-    void setA(double value) { a = value; }
-    void setB(double value) { b = value; }
-    void setC(double value) { c = value; }
-    void setD(double value) { d = value; }
+    void setA(double value) { m_a = value; }
+    void setB(double value) { m_b = value; }
+    void setC(double value) { m_c = value; }
+    void setD(double value) { m_d = value; }
 
     void updateParams(double a, double b, double c, double d) {
-        this->a = a;
-        this->b = b;
-        this->c = c;
-        this->d = d;
+        this->m_a = a;
+        this->m_b = b;
+        this->m_c = c;
+        this->m_d = d;
     }
 
 };
@@ -110,7 +110,6 @@ namespace /* std:: */ {
 
 /**  Clifford Pickover's Attractor
  *  ------------------------------- \n
- *
  *  Using REL's GlowImage <u>https://rel.phatcode.net</u>
  */
 static void step() {
@@ -289,10 +288,6 @@ static void updateTiming(const time_point<system_clock, milliseconds> lastFrameT
  */
 void RenderCGame() {
     static chrono::system_clock::time_point lastTime = clock_now();
-//    const long timeDuration = chrono::duration_cast<milliseconds>(
-//            clock_now() - chrono::time_point_cast<milliseconds , system_clock>(
-//                    lastTime)).count();
-//    const double timeSecs = (double)timeDuration * 0.001;
 
     if (paused) return;
 
@@ -302,7 +297,6 @@ void RenderCGame() {
         isScreenDirty = true;
     }
     UpdateWindow();
-//        printf("%f %d\n", timeSecs, totalFrames);
     lastTime = clock_now();
     step();
     glDrawArrays(GL_POINTS, 0, CGameGLContext::NUM_PARTICLES);
