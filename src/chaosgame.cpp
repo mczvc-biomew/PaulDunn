@@ -50,7 +50,7 @@ public:
 namespace CGameGLContext {
 // OpenGL ES 2.0 uses shaders
 //   Intel i3 2.10Ghz with OpenGL 4.4 >
-    constexpr int NUM_PARTICLES = 2506600;
+    constexpr int NUM_PARTICLES = 906600;
 
     static GLfloat vertexData[NUM_PARTICLES * 2];
     static GLfloat prevVertexData[NUM_PARTICLES * 2];
@@ -73,13 +73,13 @@ namespace {
     const double PHI = (1 + sqrt(5)) / 2;
 
     const double width = 0.7;
-    const double height = 3.5;
-    const double aspect = 1440.0 / 900.0;
+    const double height = 1.35;
+    const double aspect = 600.0 / 600.0;
 
-    const double minX = 0.3;
-    const double minY = (minX + 0.5) * aspect;
+    const double minX = 0.5;
+    const double minY = (minX + 0.85) * aspect;
 
-    const double maxX = 3.7;
+    const double maxX = 3.0;
     const double maxY = (maxX + 0.5) * aspect;
 
     const double caw = maxX - minX;
@@ -87,6 +87,8 @@ namespace {
     const double daw = width * 2 / caw;
     const double dah = height / cah;
     double t = 3.0;
+
+    const double aBounds = 5.1;
 
     unsigned int totalFrames = 0;
     unsigned int frameCounter = 0;
@@ -106,10 +108,11 @@ static void step() {
     double j = 0;
     CGameGLContext::prevVertexData[0] = (float)x;
     CGameGLContext::prevVertexData[1] = (float)y;
+    static double a = dream.getA();
     for (int i = 0; i < dream.getIterations(); i++) {
         // PaulDunn, creator of SpecBasic, interpreter for SinClair Basic.
         const double u = std::sin(y * dream.getB()) + dream.getC()*std::sin(x * dream.getB());
-        const double v = std::sin(x * dream.getA()) + dream.getD()*std::sin(y * dream.getA());
+        const double v = std::sin(x * a) + dream.getD()*std::sin(y * a);
 
         x = u;
         y = v;
@@ -133,11 +136,18 @@ static void step() {
         j += t;
 
     }
-    dream.setA(dream.getA() + 0.1 * sin(sin(t) * M_PI/32.0));
+    static double tDir = 1.0 / 600.0;
+    a = a + tDir *24.0*10.5* sin(sin(t) * M_PI/32.0);
+//    printf("%f\n", dream.getA());
+//    dream.setB(dream.getB() + 0.1 * sin(sin(t) * M_PI/32.0));
     glUniform1f(CGameGLContext::angleLoc, (float)std::sin(t *PHI *PHI *PHI));
     dream.setX(x);
     dream.setY(y);
-    t += 1.0 / 600.0;
+    if (a - aBounds < -(aBounds + 5.0)) {
+//        printf("%f\n", a - aBounds);
+        tDir *= -1.0;
+    }
+    t += tDir;
 }
 
 static void enableTexturing() {
@@ -262,22 +272,19 @@ static void updateTiming(const time_point<system_clock, milliseconds> lastFrameT
  */
 void RenderCGame() {
     static chrono::system_clock::time_point lastTime = clock_now();
-    const long timeDuration = chrono::duration_cast<milliseconds>(
-            clock_now() - chrono::time_point_cast<milliseconds , system_clock>(
-                    lastTime)).count();
-    const double timeSecs = (double)timeDuration * 0.001;
+//    const long timeDuration = chrono::duration_cast<milliseconds>(
+//            clock_now() - chrono::time_point_cast<milliseconds , system_clock>(
+//                    lastTime)).count();
+//    const double timeSecs = (double)timeDuration * 0.001;
 
     if (paused) return;
 
-    if (timeDuration > 150) {
-        ClearScreen();
-        glDrawArrays(GL_POINTS, 0, CGameGLContext::NUM_PARTICLES);
-        UpdateWindow();
-//        printf("%f %d\n", timeSecs, frameCounter);
-        lastTime = clock_now();
-        frameCounter = 0;
-        step();
-    }
+    ClearScreen();
+    glDrawArrays(GL_POINTS, 0, CGameGLContext::NUM_PARTICLES);
+    UpdateWindow();
+//        printf("%f %d\n", timeSecs, totalFrames);
+    lastTime = clock_now();
+    step();
     frameCounter += 1;
 
     updateTiming(std::chrono::time_point_cast<milliseconds, system_clock>( lastTime));
