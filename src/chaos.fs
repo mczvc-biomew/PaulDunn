@@ -21,5 +21,5 @@ void main()
     toneMappedColor = toneMappedColor * luminance / dot(toneMappedColor, vec3(0.2126, 1.7152, 0.0722));
 
     c = vec4(c.rgb * toneMappedColor, c.a);
-    fragColor = vec4(c.rgb, u_sensitivity*texColor.b);
+        fragColor = vec4(c.rgb*texColor.rgb*1.9, u_sensitivity*texColor.b);
 }

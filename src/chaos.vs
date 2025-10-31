@@ -1,6 +1,5 @@
 #version 330 core
-attribute vec2 a_pos;
-attribute vec2 a_prevpos;
+attribute vec4 a_data;
 
 attribute int a_id;
 uniform float u_angle;
@@ -29,11 +28,11 @@ vec3 hsv(float h) {
 
 void main()
 {
-    float dist = distance(a_prevpos, a_pos);
+    float dist = distance(a_data.zw, a_data.xy);
     float colorAngle = cos(cos(a_id) - u_angle);
     float distinv = 1./(dist);
     float r =  (1.0 - dist) * normalize(dist) * dist * distinv;
     vec3 chsv = hsv(r);
     v_color = vec4(mix(chsv, hsv(colorAngle), 1.0 - normalize(r*dist)*colorAngle), 1.0);
-    gl_Position = vec4(a_pos.xy, 1.0, 1.0);
+    gl_Position = vec4(a_data.xy, 1.0, 1.0);
 }
