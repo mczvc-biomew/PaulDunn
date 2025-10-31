@@ -24,7 +24,7 @@
 //namespace {
 #define version 0.3.2
 
-int g_targetWidth = 1400;
+int g_targetWidth = 900;
 int g_targetHeight = 750;
 
 double g_targetAspect = g_targetWidth / static_cast<double>(g_targetHeight);
@@ -34,7 +34,7 @@ double g_targetAspect = g_targetWidth / static_cast<double>(g_targetHeight);
 bool paused = false;
 
 int main(int argc, char *argv[]) {
-    bool quit = CreateWindow("Bubble Universe 3.2") != 0;
+    bool quit = CreateWindow("ChaosGame 0.5.1") != 0;
 
     if (!quit) {
         InitCGame();
