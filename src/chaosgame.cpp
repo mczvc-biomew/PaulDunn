@@ -50,10 +50,11 @@ public:
 namespace CGameGLContext {
 // OpenGL ES 2.0 uses shaders
 //   Intel i3 2.10Ghz with OpenGL 4.4 >
-    constexpr int NUM_PARTICLES = 906600;
+    constexpr int NUM_PARTICLES = 110240;
 
-    static GLfloat vertexData[NUM_PARTICLES * 2];
-    static GLfloat prevVertexData[NUM_PARTICLES * 2];
+//    static GLfloat vertexData[NUM_PARTICLES * 2];
+//    static GLfloat prevVertexData[NUM_PARTICLES * 2];
+    static GLfloat attractor2Data[NUM_PARTICLES * (2 + 2)];
     static GLint idData[NUM_PARTICLES];
 
 
@@ -63,7 +64,7 @@ namespace CGameGLContext {
 
 };
 
-namespace {
+namespace Parameters {
 
     AlphaAttractor dream {0.1, 0.1, -0.976918, 2.870979, 0.718145, 0.642928,
                           CGameGLContext::NUM_PARTICLES};
@@ -89,11 +90,16 @@ namespace {
     double t = 3.0;
 
     const double aBounds = 5.1;
+    constexpr uint screenBackPressure = 11000000;
+    bool isScreenDirty = false;
+
+    uint dataSent = 0;
 
     unsigned int totalFrames = 0;
     unsigned int frameCounter = 0;
     unsigned long totalTimeMS;
 }
+using namespace Parameters;
 
 extern bool paused;
 
@@ -106,10 +112,13 @@ static void step() {
 //    Clifford Pickover's Attractor
 //  Using REL's GlowImage <u>https://rel.phatcode.net</u>
     double j = 0;
-    CGameGLContext::prevVertexData[0] = (float)x;
-    CGameGLContext::prevVertexData[1] = (float)y;
+//    CGameGLContext::prevVertexData[0] = (float)x;
+//    CGameGLContext::prevVertexData[1] = (float)y;
+    CGameGLContext::attractor2Data[0] = (float)x;
+    CGameGLContext::attractor2Data[1] = (float)y;
+    CGameGLContext::idData[0] = 0;
     static double a = dream.getA();
-    for (int i = 0; i < dream.getIterations(); i++) {
+    for (int i = 1; i < dream.getIterations(); i++) {
         // PaulDunn, creator of SpecBasic, interpreter for SinClair Basic.
         const double u = std::sin(y * dream.getB()) + dream.getC()*std::sin(x * dream.getB());
         const double v = std::sin(x * a) + dream.getD()*std::sin(y * a);
@@ -120,24 +129,25 @@ static void step() {
         const auto vX = static_cast<GLfloat>((x - minX + 0.5) * daw);
         const auto vY = static_cast<GLfloat>((y - minY + 0.5) * dah + 0.5);
 
-        const int pvI = (i - 1) * 2;
-        if (i > 1) {
-            CGameGLContext::prevVertexData[pvI + 0] = vX;
-            CGameGLContext::prevVertexData[pvI + 1] = vY;
+        const int vI = i * 4;
+//        const int vI = (i + 1) * 4;
+        CGameGLContext::attractor2Data[vI - 2] = vX;
+        CGameGLContext::attractor2Data[vI - 1] = vY;
+
+        if (i < dream.getIterations() - 1) {
+            CGameGLContext::attractor2Data[vI + 0] = vX;
+            CGameGLContext::attractor2Data[vI + 1] = vY;
         }
 
-        const int vI = i * 2;
-
-        CGameGLContext::vertexData[vI + 0] = vX;
-        CGameGLContext::vertexData[vI + 1] = vY;
-
-        CGameGLContext::idData[vI] = i;
+        CGameGLContext::idData[i] = i;
 
         j += t;
 
     }
     static double tDir = 1.0 / 600.0;
-    a = a + tDir *24.0*10.5* sin(sin(t) * M_PI/32.0);
+    if (isScreenDirty) {
+        a = a + tDir * 24.0 * 3.125 * sin(sin(t) * M_PI / 32.0);
+    }
 //    printf("%f\n", dream.getA());
 //    dream.setB(dream.getB() + 0.1 * sin(sin(t) * M_PI/32.0));
     glUniform1f(CGameGLContext::angleLoc, (float)std::sin(t *PHI *PHI *PHI));
@@ -148,6 +158,7 @@ static void step() {
         tDir *= -1.0;
     }
     t += tDir;
+    isScreenDirty = false;
 }
 
 static void enableTexturing() {
@@ -229,12 +240,16 @@ void InitCGame() {
     CGameGLContext::angleLoc = glGetUniformLocation(program,"u_angle");
 
     // Points position attribute to vertexData
-    GLint position = glGetAttribLocation(program, "a_pos");
-    glEnableVertexAttribArray(position);
-    glVertexAttribPointer(position, 2, GL_FLOAT, GL_FALSE, 0, CGameGLContext::vertexData);
-    GLint prevPos = glGetAttribLocation(program, "a_prevpos");
-    glEnableVertexAttribArray(prevPos);
-    glVertexAttribPointer(prevPos, 2, GL_FLOAT, GL_FALSE, 0, &CGameGLContext::prevVertexData);
+//    GLint position = glGetAttribLocation(program, "a_pos");
+//    glEnableVertexAttribArray(position);
+//    glVertexAttribPointer(position, 2, GL_FLOAT, GL_FALSE, 0, CGameGLContext::vertexData);
+//    GLint prevPos = glGetAttribLocation(program, "a_prevpos");
+//    glEnableVertexAttribArray(prevPos);
+//    glVertexAttribPointer(prevPos, 2, GL_FLOAT, GL_FALSE, 0, &CGameGLContext::prevVertexData);
+    GLint attractor = glGetAttribLocation(program, "a_data");
+    glEnableVertexAttribArray(attractor);
+    glVertexAttribPointer(attractor, 4, GL_FLOAT, GL_FALSE, 0,
+                          CGameGLContext::attractor2Data);
     GLint id = glGetAttribLocation(program, "a_id");
     glEnableVertexAttribArray(id);
     glVertexAttribPointer(id, 1, GL_INT, GL_TRUE, 0, CGameGLContext::idData);
@@ -266,7 +281,6 @@ static void updateTiming(const time_point<system_clock, milliseconds> lastFrameT
     frames++;
     totalFrames++;
 }
-
 /**
  * Render loop.
  */
@@ -279,16 +293,20 @@ void RenderCGame() {
 
     if (paused) return;
 
-    ClearScreen();
+    if (dataSent > screenBackPressure) {
+        ClearScreen();
+        dataSent -= screenBackPressure;
+        isScreenDirty = true;
+    }
     glDrawArrays(GL_POINTS, 0, CGameGLContext::NUM_PARTICLES);
     UpdateWindow();
 //        printf("%f %d\n", timeSecs, totalFrames);
     lastTime = clock_now();
     step();
+    dataSent += dream.getIterations();
     frameCounter += 1;
 
     updateTiming(std::chrono::time_point_cast<milliseconds, system_clock>( lastTime));
-
 //    paused = true;
 
 }
