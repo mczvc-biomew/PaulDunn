@@ -54,7 +54,8 @@ int main(int argc, char *argv[]) {
         }
 
         // Render Paul Dunn`s fractal
-        RenderCGame();
+        if (!RenderCGame())
+            break;
 //        Render();
     }
 
