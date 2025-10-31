@@ -461,11 +461,14 @@ void eggUnload() {
     eggLogMessage(" %d KBs freed!\n Bye!\n", memoryUsage / 1024);
 }
 
+void setBackgroundColor(float red, float green, float blue, float alpha) {
+    glClearColor(red, green, blue, alpha);
+}
+
 /**
  * Clears the screen with black.
  */
 void ClearScreen() {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
