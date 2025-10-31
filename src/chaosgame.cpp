@@ -99,6 +99,46 @@ namespace /* std:: */ {
 #define clock_now std::chrono::high_resolution_clock::now
 };
 
+static void step() {
+
+//    Clifford Pickover's Attractor
+//  Using REL's GlowImage <u>https://rel.phatcode.net</u>
+    double j = 0;
+    CGameGLContext::prevVertexData[0] = (float)x;
+    CGameGLContext::prevVertexData[1] = (float)y;
+    for (int i = 0; i < dream.getIterations(); i++) {
+        // PaulDunn, creator of SpecBasic, interpreter for SinClair Basic.
+        const double u = std::sin(y * dream.getB()) + dream.getC()*std::sin(x * dream.getB());
+        const double v = std::sin(x * dream.getA()) + dream.getD()*std::sin(y * dream.getA());
+
+        x = u;
+        y = v;
+
+        const auto vX = static_cast<GLfloat>((x - minX + 0.5) * daw);
+        const auto vY = static_cast<GLfloat>((y - minY + 0.5) * dah + 0.5);
+
+        const int pvI = (i - 1) * 2;
+        if (i > 1) {
+            CGameGLContext::prevVertexData[pvI + 0] = vX;
+            CGameGLContext::prevVertexData[pvI + 1] = vY;
+        }
+
+        const int vI = i * 2;
+
+        CGameGLContext::vertexData[vI + 0] = vX;
+        CGameGLContext::vertexData[vI + 1] = vY;
+
+        CGameGLContext::idData[vI] = i;
+
+        j += t;
+
+    }
+    dream.setA(dream.getA() + 0.1 * sin(sin(t) * M_PI/32.0));
+    glUniform1f(CGameGLContext::angleLoc, (float)std::sin(t *PHI *PHI *PHI));
+    dream.setX(x);
+    dream.setY(y);
+    t += 1.0 / 600.0;
+}
 
 static void enableTexturing() {
 
@@ -190,43 +230,9 @@ void InitCGame() {
     glVertexAttribPointer(id, 1, GL_INT, GL_TRUE, 0, CGameGLContext::idData);
 
     enableTexturing();
-//    Clifford Pickover's Attractor
-//  Using REL's GlowImage <u>https://rel.phatcode.net</u>
-    double j = 0;
-    CGameGLContext::prevVertexData[0] = (float)x;
-    CGameGLContext::prevVertexData[1] = (float)y;
-    for (int i = 0; i < dream.getIterations(); i++) {
-        // PaulDunn, creator of SpecBasic, interpreter for SinClair Basic.
-        const double u = std::sin(y * dream.getB()) + dream.getC()*std::sin(x * dream.getB());
-        const double v = std::sin(x * dream.getA()) + dream.getD()*std::sin(y * dream.getA());
-
-        x = u;
-        y = v;
-
-        const auto vX = static_cast<GLfloat>((x - minX + 0.5) * daw);
-        const auto vY = static_cast<GLfloat>((y - minY + 0.5) * dah + 0.5);
-
-        const int pvI = (i - 1) * 2;
-        if (i > 1) {
-            CGameGLContext::prevVertexData[pvI + 0] = vX;
-            CGameGLContext::prevVertexData[pvI + 1] = vY;
-        }
-
-        const int vI = i * 2;
-
-        CGameGLContext::vertexData[vI + 0] = vX;
-        CGameGLContext::vertexData[vI + 1] = vY;
-
-        CGameGLContext::idData[vI] = i;
-
-        j += t;
-
-    }
-    glUniform1f(CGameGLContext::angleLoc, (float)std::sin(t *PHI *PHI *PHI));
-    dream.setX(x);
-    dream.setY(y);
-    t += 1.0 / 600.0;
+    step();
 }
+
 
 static void updateTiming(const time_point<system_clock, milliseconds> lastFrameTime) {
 
@@ -263,19 +269,20 @@ void RenderCGame() {
 
     if (paused) return;
 
-//    if (timeDuration > 1000) {
+    if (timeDuration > 150) {
         ClearScreen();
         glDrawArrays(GL_POINTS, 0, CGameGLContext::NUM_PARTICLES);
         UpdateWindow();
-        printf("%f %d\n", timeSecs, frameCounter);
+//        printf("%f %d\n", timeSecs, frameCounter);
         lastTime = clock_now();
-//        frameCounter = 0;
-//    }
+        frameCounter = 0;
+        step();
+    }
     frameCounter += 1;
 
     updateTiming(std::chrono::time_point_cast<milliseconds, system_clock>( lastTime));
 
-    paused = true;
+//    paused = true;
 
 }
 
