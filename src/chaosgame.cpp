@@ -108,19 +108,18 @@ namespace /* std:: */ {
 #define clock_now std::chrono::high_resolution_clock::now
 };
 
+/**  Clifford Pickover's Attractor
+ *  ------------------------------- \n
+ *
+ *  Using REL's GlowImage <u>https://rel.phatcode.net</u>
+ */
 static void step() {
 
-//    Clifford Pickover's Attractor
-//  Using REL's GlowImage <u>https://rel.phatcode.net</u>
-    double j = 0;
-//    CGameGLContext::prevVertexData[0] = (float)x;
-//    CGameGLContext::prevVertexData[1] = (float)y;
     CGameGLContext::attractor2Data[0] = (float)x;
     CGameGLContext::attractor2Data[1] = (float)y;
     CGameGLContext::idData[0] = 0;
     static double a = dream.getA();
     for (int i = 1; i < dream.getIterations(); i++) {
-        // PaulDunn, creator of SpecBasic, interpreter for SinClair Basic.
         const double u = std::sin(y * dream.getB()) + dream.getC()*std::sin(x * dream.getB());
         const double v = std::sin(x * a) + dream.getD()*std::sin(y * a);
 
@@ -142,12 +141,11 @@ static void step() {
 
         CGameGLContext::idData[i] = i;
 
-        j += t;
-
     }
     static double tDir = 1.0 / 600.0;
     const double aDelta = abs(a - aUpperBounds);
-    constexpr double EPSILON = 0.001;
+    constexpr double EPSILON = 0.01;
+
     if (dataSent > screenBackPressure * 0.005*3) {
         a = a + tDir * 24.0 * 3.125 * sin(sin(t) * M_PI / 32.0);
         glUniform1f(CGameGLContext::angleLoc, (float)std::sin(t *PHI *PHI *PHI));
@@ -157,7 +155,7 @@ static void step() {
     }
 //    printf("%f\n", dream.getA());
 //    dream.setB(dream.getB() + 0.1 * sin(sin(t) * M_PI/32.0));
-    if (aDelta < 0.01 || abs(aDelta - aLowerBounds) > aLowerBounds) {
+    if (aDelta < EPSILON || abs(aDelta - aLowerBounds) > aLowerBounds) {
         tDir = -(tDir - 1.0);
     }
     t += tDir;
