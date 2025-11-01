@@ -128,7 +128,7 @@ static void step() {
     static double b = dream.getB();
     static double c = dream.getC();
     static double d = dream.getD();
-    // Authors Note:
+    // Author's Note:
     // based on my observation, only param a and c that looks promising to explore;
     // Now i know what the Clifford's Fractal dimensions! ;>
     // It has to be in microscopic (picoscropic, rather) level;
@@ -166,15 +166,11 @@ static void step() {
     *3
 #endif
     ) {
-//        a = a + tDir * 24.0 * 3.125 * sin(sin(t) * M_PI / 32.0);
         a = a + tDir * 24.0 * 3.125 * sin(sin(t) * M_PI / 32.0);
         glUniform1f(CGameGLContext::angleLoc, (float)std::sin(t *PHI *PHI *PHI));
         dream.setX(x);
         dream.setY(y);
-//        printf("%f\n", abs(aDelta - aLowerBounds));
     }
-//    printf("%f\n", dream.getA());
-//    dream.setB(dream.getB() + 0.1 * sin(sin(t) * M_PI/32.0));
     if (aDelta < EPSILON || abs(aDelta - aLowerBounds) > aLowerBounds) {
         tDir = -(tDir - 1.0);
     }
@@ -196,30 +192,6 @@ void InitCGame() {
     // Creates new OpenGL shader, (330 core)
 
 ////  Read vertex shader source.
-//    struct EggFileContext eggFile = eggFileOpen(nullptr, "./chaos.vs");
-//    long vertexBytesLen = (long)sizeof(char) * eggFile.size;
-//    char *vertexShaderSrc = (char *) malloc(vertexBytesLen);
-//
-//    size_t bytesRead = eggFileRead(eggFile.filePointer, vertexBytesLen, vertexShaderSrc);
-//    vertexShaderSrc[bytesRead] = '\0';
-////    printf("%zu: %s\n", bytesRead, vertexShaderSrc);
-////    printf("%d", vertexShaderSrc[bytesRead-1]);
-//
-////  Compile the vertex shader.
-//    GLuint vertexShaderObj = eggCompileShader(GL_VERTEX_SHADER, vertexShaderSrc);
-//
-//    eggFileClose(eggFile.filePointer);
-//    free(vertexShaderSrc);
-//
-//    if (vertexShaderObj == 0) {
-//        fprintf(stderr,
-//                "There's an error compiling the vertex-shader [obj].\n");
-//#if defined(DEBUG)
-//        printf("%ld bytes\n", eggFile.size);
-//#endif
-//        GL_CHECK();
-//        SDL_Quit();
-//    }
 
     EggShader vertex = eggLoadVertShaderFile("./chaos.vs");
     if (vertex.error != SHADER_NO_ERROR) {
@@ -227,29 +199,6 @@ void InitCGame() {
     }
 
 ////  Read fragment shader source.
-//
-//    EggFileContext eggFile = eggFileOpen(nullptr, "./chaos.fs");
-//    long fragmentBytesLen = (long)sizeof(char) * eggFile.size;
-//    char *fragmentShaderSrc = (char *) malloc(fragmentBytesLen);
-//
-//    size_t bytesRead = eggFileRead(eggFile.filePointer, fragmentBytesLen, fragmentShaderSrc);
-//    fragmentShaderSrc[bytesRead] = '\0';
-////    printf("%d", fragmentShaderSrc[bytesRead-1]);
-////  Compile the fragment shader.
-//    GLuint fragmentShaderObj = eggCompileShader(GL_FRAGMENT_SHADER, fragmentShaderSrc);
-//
-//    eggFileClose(eggFile.filePointer);
-//    free(fragmentShaderSrc);
-//
-//    if (fragmentShaderObj == 0) {
-//        fprintf(stderr,
-//                "There's an error compiling the fragment-shader [obj].\n");
-//#if defined(DEBUG)
-//        printf("%ld bytes\n", eggFile.size)
-//#endif
-//        GL_CHECK();
-//        SDL_Quit();
-//    }
     EggShader frag = eggLoadFragShaderFile("./chaos.fs");
     if (vertex.error != SHADER_NO_ERROR) {
         SDL_Quit();
@@ -280,7 +229,7 @@ void InitCGame() {
     eggLogMessage("Uniforms: %d\n", eggGetUniforms(program));
 #endif
 
-    // use once then delete.
+    // use program once then delete.
     // This is a bad practice, as OpenGL contexts might be
     // lost during the entire program.
     // I had tested partially the program to
@@ -375,7 +324,6 @@ bool RenderCGame() {
     updateTiming(std::chrono::time_point_cast<milliseconds, system_clock>( lastDrawTime));
     lastDrawTime = clock_now();
 #if defined(TEST_ONE) || defined(TEST_THREE)
-//    printf("%lf\n", timeSecs);
     if (timeSecs > 10) {
         paused = true;
         return false;
