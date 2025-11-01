@@ -4,7 +4,7 @@
 using namespace std;
 using namespace std::chrono;
 
-//#define TEST_ONE
+//#define TEST_THREE
 
 class AttractorSet {
 private:
@@ -125,9 +125,16 @@ static void step() {
     CGameGLContext::attractor2Data[1] = (float)y;
     CGameGLContext::idData[0] = 0;
     static double a = dream.getA();
+    static double b = dream.getB();
+    static double c = dream.getC();
+    static double d = dream.getD();
+    // Authors Note:
+    // based on my observation, only param a and c that looks promising to explore;
+    // Now i know what the Clifford's Fractal dimensions! ;>
+    // It has to be in microscopic (picoscropic, rather) level;
     for (int i = 1; i < dream.getIterations(); i++) {
-        const double u = std::sin(y * dream.getB()) + dream.getC()*std::sin(x * dream.getB());
-        const double v = std::sin(x * a) + dream.getD()*std::sin(y * a);
+        const double u = std::sin(y * b) + c*std::sin(x * b);
+        const double v = std::sin(x * a) + d*std::sin(y * a);
 
         x = u;
         y = v;
@@ -159,6 +166,7 @@ static void step() {
     *3
 #endif
     ) {
+//        a = a + tDir * 24.0 * 3.125 * sin(sin(t) * M_PI / 32.0);
         a = a + tDir * 24.0 * 3.125 * sin(sin(t) * M_PI / 32.0);
         glUniform1f(CGameGLContext::angleLoc, (float)std::sin(t *PHI *PHI *PHI));
         dream.setX(x);
