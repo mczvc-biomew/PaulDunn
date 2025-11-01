@@ -49,7 +49,7 @@ typedef struct {
 #endif
 
 /**
- * Initialize OpenGL viewport
+ * \private Initialize OpenGL viewport.
  */
 static void initViewPort() {
 
@@ -117,7 +117,8 @@ static int init2D() {
 }
 
 /**
- * Creates a new Window. Defaults to SDL window.
+ * \EGG ::Creates a new Window. \n
+ * Defaults to SDL window.
  * @param title The title of the window.
  * @return -1: on error; 0 on success.
  */
@@ -204,6 +205,13 @@ int CreateWindow(const char *title) {
     return init2D();
 }
 
+/**
+ * \EGG ::Quit Program.\n
+ * It will release the renderer, window, and additional loaded resources,
+ * then gracefully quits the program.\n<br>
+ *
+ * Call this when terminating your ..::[Egg2D]::.. program.
+ */
 void EGG_Quit() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -211,6 +219,15 @@ void EGG_Quit() {
     SDL_Quit();
 }
 
+// --- Shader Manager ---
+
+/**
+ * \EGG ::Compile (Vertex or Fragment) Shader.\n
+ * Compiles a unit shader, then return its id, a graphics shader object identifier;
+ * @type either a GL_VERTEX_SHADER or GL_FRAGMENT_SHADER;
+ * @shaderSrc the relative path of shader source.
+ * @returns the shader id. On error, it will return 0; otherwise, a positive id.
+ */
 GLuint eggCompileShader(GLenum type, const char *shaderSrc) {
     GLuint shader;
     GLint compiled;
@@ -250,6 +267,14 @@ GLuint eggCompileShader(GLenum type, const char *shaderSrc) {
     return shader;
 }
 
+/**
+ * \EGG ::Creates and Compile Shader Program.\n
+ * It will completely compile a shader program, using the specified
+ * vertex and shader program id; use eggLoadVertShaderFile and eggLoadFragShaderFile.
+ * @vertexShaderObj the vertex shader id;
+ * @fragmentShaderObj the fragment shader id;
+ * @returns the id of the program (located in the graphics memory);
+ */
 GLuint eggShaderCreateProgram(GLuint vertexShaderObj, GLuint fragmentShaderObj) {
     GLint linked; // link status
 
@@ -288,8 +313,18 @@ GLuint eggShaderCreateProgram(GLuint vertexShaderObj, GLuint fragmentShaderObj) 
 }
 
 
-// --- Shader Manager ---
-
+/**
+ * \EGG ::Load Vertex Shader File.\n
+ * Loads the file, relative to the current path,
+ * compiles, then return an `EggShader`
+ * \EggShader a struct data type to contain
+ * \type the shader type, either SHADER_FRAG or SHADER_VERT. Returns SHADER_VERT;
+ * \id the shader object id (in graphics memory);
+ * \src a TextResource to contain file's file pointer and file size;
+ * \error the error is set when opening the file, either one of
+ * SHADER_NO_ERROR, SHADER_READ_ERROR, or SHADER_COMPILE_ERROR.
+ *
+ */
 struct EggShader eggLoadVertShaderFile(const char *relativePath) {
     //  Read vertex shader source.
     struct EggFileContext eggFile = eggFileOpen(NULL, "./chaos.vs");
@@ -342,7 +377,18 @@ struct EggShader eggLoadVertShaderFile(const char *relativePath) {
     }
     return vertex;
 }
-
+/**
+ * \EGG ::Load Fragment Shader File.\n
+ * Loads the file, relative to the current path,
+ * compiles, then return an `EggShader`
+ * \EggShader a struct data type to contain
+ * \type the shader type, either SHADER_FRAG or SHADER_VERT. Returns SHADER_FRAG;
+ * \id the shader object id (in graphics memory);
+ * \src a TextResource to contain file's file pointer and file size;
+ * \error the error is set when opening the file, either one of
+ * SHADER_NO_ERROR, SHADER_READ_ERROR, or SHADER_COMPILE_ERROR.
+ *
+ */
 struct EggShader eggLoadFragShaderFile(const char *relativePath) {
 
 //  Read fragment shader source.
@@ -396,6 +442,12 @@ struct EggShader eggLoadFragShaderFile(const char *relativePath) {
     return frag;
 }
 
+/**
+ * \EGG ::Free/Release Shader.
+ *
+ * Release the EggShader object.
+ * @obj the shader, either a vertex or fragment shader.
+ */
 void eggFreeShader(EggShader obj) {
     if (obj.src.src != NULL) {
         free((char *) obj.src.src);
@@ -427,12 +479,14 @@ EGG_API void eggLogMessage(const char *formatStr, ...) {
 }
 
 /**
- * (EGG::) File Open.\n
+ * \EGG:: File Open.\n
  * Opens a file, (on android, input-output context is use to load assets by the asset manager),
- * query its size, and then return an EggFileContext { \n
- * `.filePointer`: the file pointer of opened file, on error, it sets to NULL pointer \n
- * `.size`: the physical size of file, on error, it sets to -1 \n
- * }
+ * query its size, and then return an `EggFileContext`
+ * @returns EggFileContext
+ * \EggFileContext c-struct to contain return values for opening the file.
+ * \filePointer the file pointer of opened file, on error, it sets to NULL pointer \n
+ * \size the physical size of file, on error, it sets to -1 \n
+ *
  *
  */
 EGG_API struct EggFileContext eggFileOpen(void *ioContext, const char *fileName) {
@@ -470,6 +524,12 @@ EGG_API struct EggFileContext eggFileOpen(void *ioContext, const char *fileName)
         .size = file_size };
 }
 
+/**
+ * \EGG ::File Close.\n
+ *
+ * Close the opened file.
+ * @pFile the file pointer to close.
+ */
 EGG_API void eggFileClose(eggFile *pFile) {
     if (pFile != NULL) {
 #ifdef ANDROID
@@ -481,6 +541,15 @@ EGG_API void eggFileClose(eggFile *pFile) {
     }
 }
 
+/**
+ * \EGG ::File Read.\n
+ *
+ * Read file to buffer, then returns the read-size.
+ * @pFile the opened file pointer to file to read.
+ * @bytesToRead size limit to read.
+ * @buffer a pointer to use upon reading the file.
+ * @returns the read-size of file read.
+ */
 EGG_API size_t eggFileRead(eggFile *pFile, long bytesToRead, void *buffer) {
     unsigned long bytesRead = 0;
 
@@ -543,6 +612,12 @@ GLuint GetGlowImage() {
     return textureID;
 }
 
+/**
+ * \EGG ::Load PCM Image\n
+ *
+ * Loads an (unconventional) PCM image format.\n
+ * PCM is a Pure Color Map, array data map for color map textures.
+ */
 EGG_API char *eggLoadPCM(void *ioContext, const char *fileName, int *width, int *height) {
     char *buffer;
     eggFile *fp;
@@ -578,7 +653,11 @@ EGG_API char *eggLoadPCM(void *ioContext, const char *fileName, int *width, int 
     return (NULL);
 }
 
-char* frameBufferToTexture(GLuint framebuffer, GLsizei width, GLsizei height) {
+/**
+ * \private ::Frame Buffer to Texture.
+ * @returns the allocated texture of snapshot to framebuffer.
+ */
+static char* frameBufferToTexture(GLuint framebuffer, GLsizei width, GLsizei height) {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     int texLength = width * height * 4;
     char *texture = (char *) malloc(texLength);
@@ -587,6 +666,12 @@ char* frameBufferToTexture(GLuint framebuffer, GLsizei width, GLsizei height) {
     return texture;
 }
 
+/**
+ * \EGG ::Get Shader Uniforms. \n
+ *
+ * Query the Shader Uniforms (to print all those available uniforms).
+ * @returns the total count of shader uniforms.
+ */
 GLint eggGetUniforms(GLuint program) {
     GLint params;
     GL_CHECK(glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &params));
@@ -602,29 +687,37 @@ GLint eggGetUniforms(GLuint program) {
 }
 
 /**
- * Try deallocating memory.
+ * \EGG ::Unload Resources.\n
+ *
+ * Try deallocating managed memory resources.
  */
 void eggUnload() {
     eggLogMessage("Freeing up resources..");
     for (int ai = 0; ai < assetsIndex; ai++) {
-        if (assetsBuffer[ai] != NULL) { free(assetsBuffer[ai]); }
+        if (assetsBuffer[ai] != NULL) {
+            free(assetsBuffer[ai]);
+            assetsBuffer[ai] = NULL;
+        }
     }
     eggLogMessage(" %d KBs freed!\n Bye!\n", memoryUsage / 1024);
 }
 
+/**
+ * \EGG2D_API ::Set Background Color.
+ */
 void setBackgroundColor(float red, float green, float blue, float alpha) {
     glClearColor(red, green, blue, alpha);
 }
 
 /**
- * Clears the screen with black.
+ * \EGG2D_API Clears the depth, stencil, and color of the screen.
  */
 void ClearScreen() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 /**
- * Updates and synchronize the window.
+ * \EGG2D_API Updates and synchronize the window.
  */
 void UpdateWindow() {
     SDL_GL_SwapWindow(window);
