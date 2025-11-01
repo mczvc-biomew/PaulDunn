@@ -327,7 +327,7 @@ GLuint eggShaderCreateProgram(GLuint vertexShaderObj, GLuint fragmentShaderObj) 
  */
 struct EggShader eggLoadVertShaderFile(const char *relativePath) {
     //  Read vertex shader source.
-    struct EggFileContext eggFile = eggFileOpen(NULL, "./chaos.vs");
+    struct EggFileContext eggFile = eggFileOpen(NULL, relativePath);
     if (eggFile.size == -1) {
         return (struct EggShader) {
             .type = SHADER_VERT,
