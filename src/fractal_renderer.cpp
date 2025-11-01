@@ -72,59 +72,32 @@ static void enableTexturing() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, GetGlowImage());
 
-    glUniform1i(samplerLoc, 0);
-    glUniform1f(sensitivityLoc, 99.0f / 255.0f);
-
-    glPointSize(32);
 }
 
 void RendererInit() {
     // Creates new OpenGL shader, (330 core)
 
-//  Read vertex shader source.
-    eggFile *fp = eggFileOpen(nullptr, "./basic.vs").filePointer;
-    int vertexBytesLen = sizeof(char) * 1024;
-    char *vertexShaderSrc = (char *) malloc(vertexBytesLen);
+////  Read vert shader source.
 
-    int bytesRead = eggFileRead(fp, vertexBytesLen, vertexShaderSrc);
-
-//  Compile the vertex shader.
-    GLuint vertexShaderObj = eggCompileShader(GL_VERTEX_SHADER, vertexShaderSrc);
-
-    eggFileClose(fp);
-    free(vertexShaderSrc);
-
-    if (vertexShaderObj == 0) {
-        fprintf(stderr,
-                "There's an error compiling the vertex-shader [obj].\n");
-        GL_CHECK();
+    EggShader vert = eggLoadVertShaderFile("./basic.vs");
+    if (vert.error != SHADER_NO_ERROR) {
+        SDL_Quit();
+    }
+////  Read fragment source.
+    EggShader frag = eggLoadFragShaderFile("./basic.fs");
+    if (frag.error != SHADER_NO_ERROR) {
         SDL_Quit();
     }
 
-//  Read fragment source.
-    fp = eggFileOpen(nullptr, "./basic.fs").filePointer;
-    int fragmentBytesLen = sizeof(char) * 4096;
-    char *fragmentShaderSrc = (char *) malloc(fragmentBytesLen);
+    GLuint program = eggShaderCreateProgram(vert.id, frag.id);
 
-    bytesRead = eggFileRead(fp, fragmentBytesLen, fragmentShaderSrc);
-//  Compile the fragment shader.
-    GLuint fragmentShaderObj = eggCompileShader(GL_FRAGMENT_SHADER, fragmentShaderSrc);
+//  Finally delete the vert and fragment shader.
+    glDeleteShader(vert.id);
+    glDeleteShader(frag.id);
 
-    eggFileClose(fp);
-    free(fragmentShaderSrc);
+    eggFreeShader(vert);
+    eggFreeShader(frag);
 
-    if (fragmentShaderObj == 0) {
-        fprintf(stderr,
-                "There's an error compiling the fragment-shader [obj].\n");
-        GL_CHECK();
-        SDL_Quit();
-    }
-
-    GLuint program = eggShaderCreateProgram(vertexShaderObj, fragmentShaderObj);
-
-//  Finally delete the vertex and fragment shader.
-    glDeleteShader(vertexShaderObj);
-    glDeleteShader(fragmentShaderObj);
     if (program == 0) {
         fprintf(stderr, "There was an error creating shader program.\n");
         GL_CHECK();
@@ -150,6 +123,13 @@ void RendererInit() {
     glVertexAttribPointer(color, 3, GL_FLOAT, GL_FALSE, 0, colorData);
 
     enableTexturing();
+
+    glUniform1i(samplerLoc, 0);
+    glUniform1f(sensitivityLoc, 99.0f / 255.0f);
+
+    glPointSize(32);
+
+    setBackgroundColor(0.0f, 0.2f, 0.2f, 0.0f);
 }
 
 void updateTiming(const time_point<system_clock, milliseconds> lastFrameTime) {
