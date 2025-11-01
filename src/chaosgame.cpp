@@ -193,40 +193,52 @@ void InitCGame() {
     // Creates new OpenGL shader, (330 core)
 
 //  Read vertex shader source.
-    eggFile *fp = eggFileOpen(nullptr, "./chaos.vs");
-    int vertexBytesLen = sizeof(char) * 1024;
+    struct EggFileContext eggFile = eggFileOpen(nullptr, "./chaos.vs");
+    long vertexBytesLen = (long)sizeof(char) * eggFile.size;
     char *vertexShaderSrc = (char *) malloc(vertexBytesLen);
 
-    int bytesRead = eggFileRead(fp, vertexBytesLen, vertexShaderSrc);
+    size_t bytesRead = eggFileRead(eggFile.filePointer, vertexBytesLen, vertexShaderSrc);
+    vertexShaderSrc[bytesRead] = '\0';
+//    printf("%zu: %s\n", bytesRead, vertexShaderSrc);
+//    printf("%d", vertexShaderSrc[bytesRead-1]);
 
 //  Compile the vertex shader.
     GLuint vertexShaderObj = eggCompileShader(GL_VERTEX_SHADER, vertexShaderSrc);
 
-    eggFileClose(fp);
+    eggFileClose(eggFile.filePointer);
     free(vertexShaderSrc);
 
     if (vertexShaderObj == 0) {
         fprintf(stderr,
                 "There's an error compiling the vertex-shader [obj].\n");
+#if defined(DEBUG)
+        printf("%ld bytes\n", eggFile.size);
+#endif
         GL_CHECK();
         SDL_Quit();
     }
 
 //  Read fragment source.
-    fp = eggFileOpen(nullptr, "./chaos.fs");
-    int fragmentBytesLen = sizeof(char) * 4096;
+
+    eggFile = eggFileOpen(nullptr, "./chaos.fs");
+    long fragmentBytesLen = (long)sizeof(char) * eggFile.size;
     char *fragmentShaderSrc = (char *) malloc(fragmentBytesLen);
 
-    bytesRead = eggFileRead(fp, fragmentBytesLen, fragmentShaderSrc);
+    bytesRead = eggFileRead(eggFile.filePointer, fragmentBytesLen, fragmentShaderSrc);
+    fragmentShaderSrc[bytesRead] = '\0';
+//    printf("%d", fragmentShaderSrc[bytesRead-1]);
 //  Compile the fragment shader.
     GLuint fragmentShaderObj = eggCompileShader(GL_FRAGMENT_SHADER, fragmentShaderSrc);
 
-    eggFileClose(fp);
+    eggFileClose(eggFile.filePointer);
     free(fragmentShaderSrc);
 
     if (fragmentShaderObj == 0) {
         fprintf(stderr,
                 "There's an error compiling the fragment-shader [obj].\n");
+#if defined(DEBUG)
+        printf("%ld bytes\n", eggFile.size)
+#endif
         GL_CHECK();
         SDL_Quit();
     }
@@ -244,7 +256,9 @@ void InitCGame() {
     // Use the shader-program for the first time;
     glUseProgram(program);
 
+#ifdef DEBUG
     eggLogMessage("Uniforms: %d\n", eggGetUniforms(program));
+#endif
 
     glDeleteProgram(program);
 
@@ -252,13 +266,10 @@ void InitCGame() {
     CGameGLContext::sensitivityLoc = glGetUniformLocation(program, "u_sensitivity");
     CGameGLContext::angleLoc = glGetUniformLocation(program,"u_angle");
 
-    // Points position attribute to vertexData
-//    GLint position = glGetAttribLocation(program, "a_pos");
-//    glEnableVertexAttribArray(position);
-//    glVertexAttribPointer(position, 2, GL_FLOAT, GL_FALSE, 0, CGameGLContext::vertexData);
-//    GLint prevPos = glGetAttribLocation(program, "a_prevpos");
-//    glEnableVertexAttribArray(prevPos);
-//    glVertexAttribPointer(prevPos, 2, GL_FLOAT, GL_FALSE, 0, &CGameGLContext::prevVertexData);
+    printf("Using %luMBs +\n", (sizeof(CGameGLContext::attractor2Data) / (1000*1000)
+    + sizeof(CGameGLContext::idData) / (1000*1000)));
+
+    // Attractor position and previous position attribute on shader
     GLint attractor = glGetAttribLocation(program, "a_data");
     glEnableVertexAttribArray(attractor);
     glVertexAttribPointer(attractor, 4, GL_FLOAT, GL_FALSE, 0,
@@ -319,7 +330,7 @@ bool RenderCGame() {
         isScreenDirty = true;
     }
     UpdateWindow();
-    step();
+    step(); // this uses 20% of CPU (margin of -2% !!)
     glDrawArrays(GL_POINTS, 0, CGameGLContext::NUM_PARTICLES);
     dataSent += dream.getIterations();
     frameCounter += 1;
@@ -337,5 +348,7 @@ bool RenderCGame() {
 }
 
 void ShutdownCGame() {
-    eggLogMessage("Rendered %d frames over %.2fs\n", totalFrames, (double)totalTimeMS / 1000.0);
+    eggLogMessage("Rendered %d frames over %.2fs, average of %.2f FPS..\n",
+                  totalFrames, (double)totalTimeMS / 1000.0,
+                  totalFrames / ((double)totalTimeMS*0.001));
 }
