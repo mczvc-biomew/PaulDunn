@@ -51,10 +51,14 @@ typedef FILE eggFile;
         }           \
     }
 
+EGG_API struct EggFileContext {
+    eggFile *filePointer;
+    long size;
+};
 
-EGG_API eggFile *eggFileOpen(void *ioContext, const char *fileName);
+EGG_API struct EggFileContext eggFileOpen(void *ioContext, const char *fileName);
 EGG_API void eggFileClose(eggFile *pFile);
-EGG_API size_t eggFileRead(eggFile *pFile, int bytesToRead, void *buffer);
+EGG_API size_t eggFileRead(eggFile *pFile, long bytesToRead, void *buffer);
 
 extern int g_targetWidth, g_targetHeight;
 extern double g_targetAspect;
