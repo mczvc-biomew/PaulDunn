@@ -82,7 +82,7 @@ void RendererInit() {
     // Creates new OpenGL shader, (330 core)
 
 //  Read vertex shader source.
-    eggFile *fp = eggFileOpen(nullptr, "./basic.vs");
+    eggFile *fp = eggFileOpen(nullptr, "./basic.vs").filePointer;
     int vertexBytesLen = sizeof(char) * 1024;
     char *vertexShaderSrc = (char *) malloc(vertexBytesLen);
 
@@ -102,7 +102,7 @@ void RendererInit() {
     }
 
 //  Read fragment source.
-    fp = eggFileOpen(nullptr, "./basic.fs");
+    fp = eggFileOpen(nullptr, "./basic.fs").filePointer;
     int fragmentBytesLen = sizeof(char) * 4096;
     char *fragmentShaderSrc = (char *) malloc(fragmentBytesLen);
 
