@@ -200,7 +200,7 @@ void InitCGame() {
 
 ////  Read fragment shader source.
     EggShader frag = eggLoadFragShaderFile("./chaos.fs");
-    if (vertex.error != SHADER_NO_ERROR) {
+    if (frag.error != SHADER_NO_ERROR) {
         SDL_Quit();
     }
 
