@@ -1,13 +1,16 @@
 #ifndef EGG_H_INCLUDED
 /**
- * @file egg2d.h\n
- * Easy Game Graphics v0.3.4
+ * \EGG2D Egg2D Library.
+ * A small 2D capable, 3D graphics library.
  *
- * (c) 2022-2025 [mczvc](mailto:mczvc\@proton.me)<br><br>
+ * @file egg2d.h\n
+ * Easy Game Graphics v0.3.5
+ *
+ * (c) 2022-2025 [mcvzc][<a href="mailto:mczvc\@proton.me">email me</a>]<br><br>
  * <b>Meldencio Czarlemagne Corrales</b>,
  *
- * <li> https://github.com/mczvc-biomew </li>
- * <li> https://mczvc-biomew.github.io/mczvc </li>
+ * <li> <a href="https://github.com/mczvc-biomew">Github</a> </li>
+ * <li> <a href="https://mczvc-biomew.github.io/mczvc">Github Personal Page</a> </li>
  */
 #define EGG_H_INCLUDED
 
