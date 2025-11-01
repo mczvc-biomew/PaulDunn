@@ -12,13 +12,18 @@
 /**
  * SDL2 on Android and Linux.
  * <li> Cxxdroid </li>
- * <li> CMake </li> <li> SDL2 </li> <li> SDL2_image </li> <li> GLAD </li>
+ * <li> SDL2 </li> <li> SDL2_image </li> <li> GLAD </li> <li> CMake </li>
+ * <br>
+ * <h2>Richard Eric Lope:</h2>
  * <li> Relminator: <u>http://rel.phatcode.net<u> </li>
- * <li> PaulDunn: SpecBasic </li>
+ * <li> PaulDunn: SpecBasic </li> <br>
+ * <h3>Jetbrains</h3>
  * <li> Jetbrain's Clion <br><br>
- * [mczvc-biomew] \<mczvc\@proton.me\><br>
+ *
+ * <h2>The Author of ..::[Egg2D]::..</h2>
+ * <li> [<a href="https://mczvc-biomew.github.io">mczvc-biomew</a>] [<a href="mailto:mczvc\@proton.me">email me</a>]</li>
  * Meldencio Czarlemagne Veras Corrales, BSCS
- * <li> Easy Game Graphics, Egg Co. </li>
+ * <li> Easy Game Graphics, Egg Co.s, <a href="https://mczvc-biomew.github.io/picosoft">Picosoft</a> </li>
  */
 //namespace {
 #define version 0.3.2
