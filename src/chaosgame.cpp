@@ -189,78 +189,90 @@ static void enableTexturing() {
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, GetGlowImage());
-
-    glUniform1i(CGameGLContext::samplerLoc, 0);
-    glUniform1f(CGameGLContext::sensitivityLoc, 10.0f / 255.0f);
-
-    glPointSize(13);
 }
 
 void InitCGame() {
 
     // Creates new OpenGL shader, (330 core)
 
-//  Read vertex shader source.
-    struct EggFileContext eggFile = eggFileOpen(nullptr, "./chaos.vs");
-    long vertexBytesLen = (long)sizeof(char) * eggFile.size;
-    char *vertexShaderSrc = (char *) malloc(vertexBytesLen);
+////  Read vertex shader source.
+//    struct EggFileContext eggFile = eggFileOpen(nullptr, "./chaos.vs");
+//    long vertexBytesLen = (long)sizeof(char) * eggFile.size;
+//    char *vertexShaderSrc = (char *) malloc(vertexBytesLen);
+//
+//    size_t bytesRead = eggFileRead(eggFile.filePointer, vertexBytesLen, vertexShaderSrc);
+//    vertexShaderSrc[bytesRead] = '\0';
+////    printf("%zu: %s\n", bytesRead, vertexShaderSrc);
+////    printf("%d", vertexShaderSrc[bytesRead-1]);
+//
+////  Compile the vertex shader.
+//    GLuint vertexShaderObj = eggCompileShader(GL_VERTEX_SHADER, vertexShaderSrc);
+//
+//    eggFileClose(eggFile.filePointer);
+//    free(vertexShaderSrc);
+//
+//    if (vertexShaderObj == 0) {
+//        fprintf(stderr,
+//                "There's an error compiling the vertex-shader [obj].\n");
+//#if defined(DEBUG)
+//        printf("%ld bytes\n", eggFile.size);
+//#endif
+//        GL_CHECK();
+//        SDL_Quit();
+//    }
 
-    size_t bytesRead = eggFileRead(eggFile.filePointer, vertexBytesLen, vertexShaderSrc);
-    vertexShaderSrc[bytesRead] = '\0';
-//    printf("%zu: %s\n", bytesRead, vertexShaderSrc);
-//    printf("%d", vertexShaderSrc[bytesRead-1]);
-
-//  Compile the vertex shader.
-    GLuint vertexShaderObj = eggCompileShader(GL_VERTEX_SHADER, vertexShaderSrc);
-
-    eggFileClose(eggFile.filePointer);
-    free(vertexShaderSrc);
-
-    if (vertexShaderObj == 0) {
-        fprintf(stderr,
-                "There's an error compiling the vertex-shader [obj].\n");
-#if defined(DEBUG)
-        printf("%ld bytes\n", eggFile.size);
-#endif
-        GL_CHECK();
+    EggShader vertex = eggLoadVertShaderFile("./chaos.vs");
+    if (vertex.error != SHADER_NO_ERROR) {
         SDL_Quit();
     }
 
-//  Read fragment source.
-
-    eggFile = eggFileOpen(nullptr, "./chaos.fs");
-    long fragmentBytesLen = (long)sizeof(char) * eggFile.size;
-    char *fragmentShaderSrc = (char *) malloc(fragmentBytesLen);
-
-    bytesRead = eggFileRead(eggFile.filePointer, fragmentBytesLen, fragmentShaderSrc);
-    fragmentShaderSrc[bytesRead] = '\0';
-//    printf("%d", fragmentShaderSrc[bytesRead-1]);
-//  Compile the fragment shader.
-    GLuint fragmentShaderObj = eggCompileShader(GL_FRAGMENT_SHADER, fragmentShaderSrc);
-
-    eggFileClose(eggFile.filePointer);
-    free(fragmentShaderSrc);
-
-    if (fragmentShaderObj == 0) {
-        fprintf(stderr,
-                "There's an error compiling the fragment-shader [obj].\n");
-#if defined(DEBUG)
-        printf("%ld bytes\n", eggFile.size)
-#endif
-        GL_CHECK();
+////  Read fragment shader source.
+//
+//    EggFileContext eggFile = eggFileOpen(nullptr, "./chaos.fs");
+//    long fragmentBytesLen = (long)sizeof(char) * eggFile.size;
+//    char *fragmentShaderSrc = (char *) malloc(fragmentBytesLen);
+//
+//    size_t bytesRead = eggFileRead(eggFile.filePointer, fragmentBytesLen, fragmentShaderSrc);
+//    fragmentShaderSrc[bytesRead] = '\0';
+////    printf("%d", fragmentShaderSrc[bytesRead-1]);
+////  Compile the fragment shader.
+//    GLuint fragmentShaderObj = eggCompileShader(GL_FRAGMENT_SHADER, fragmentShaderSrc);
+//
+//    eggFileClose(eggFile.filePointer);
+//    free(fragmentShaderSrc);
+//
+//    if (fragmentShaderObj == 0) {
+//        fprintf(stderr,
+//                "There's an error compiling the fragment-shader [obj].\n");
+//#if defined(DEBUG)
+//        printf("%ld bytes\n", eggFile.size)
+//#endif
+//        GL_CHECK();
+//        SDL_Quit();
+//    }
+    EggShader frag = eggLoadFragShaderFile("./chaos.fs");
+    if (vertex.error != SHADER_NO_ERROR) {
         SDL_Quit();
     }
 
-    GLuint program = eggShaderCreateProgram(vertexShaderObj, fragmentShaderObj);
+    GLuint program = eggShaderCreateProgram(vertex.id, frag.id);
 
 //  Finally delete the vertex and fragment shader.
-    glDeleteShader(vertexShaderObj);
-    glDeleteShader(fragmentShaderObj);
+    glDeleteShader(vertex.id);
+    glDeleteShader(frag.id);
+////     On large system, try to keep the shader source for debugging,
+////     whence you can check the source (e.g. for any errors).
+////     This is a static, and concrete sample program to demonstrate the capabilities of
+////     Egg2D (& Chaos Fractal).
+    eggFreeShader(vertex);
+    eggFreeShader(frag);
+
     if (program == 0) {
         fprintf(stderr, "There was an error creating shader program.\n");
         GL_CHECK();
         SDL_Quit();
     }
+    // This is a one time shader program.
     // Use the shader-program for the first time;
     glUseProgram(program);
 
@@ -268,12 +280,20 @@ void InitCGame() {
     eggLogMessage("Uniforms: %d\n", eggGetUniforms(program));
 #endif
 
+    // use once then delete.
+    // This is a bad practice, as OpenGL contexts might be
+    // lost during the entire program.
+    // I had tested partially the program to
+    // continuously render OpenGL buffers without losing
+    // context. Your program might be different.
     glDeleteProgram(program);
 
+    /// Configure the created shader
     CGameGLContext::samplerLoc = glGetUniformLocation(program, "s_texture");
     CGameGLContext::sensitivityLoc = glGetUniformLocation(program, "u_sensitivity");
     CGameGLContext::angleLoc = glGetUniformLocation(program,"u_angle");
 
+    // Print memory usage of attractor data.
     printf("Using %luMBs +\n", (sizeof(CGameGLContext::attractor2Data) / (1000*1000)
     + sizeof(CGameGLContext::idData) / (1000*1000)));
 
@@ -286,7 +306,16 @@ void InitCGame() {
     glEnableVertexAttribArray(id);
     glVertexAttribPointer(id, 1, GL_INT, GL_TRUE, 0, CGameGLContext::idData);
 
+    /// Anecdote: this is a specific OpenGL specification,
+    /// i'll try to abstract this on the next release of ..::[Egg2D]::..
+
     enableTexturing();
+
+    glUniform1i(CGameGLContext::samplerLoc, 0);
+    glUniform1f(CGameGLContext::sensitivityLoc, 10.0f / 255.0f);
+
+    glPointSize(13);
+
     setBackgroundColor(0.0f, 0.2f, 0.2f, 0.0f);
     ClearScreen();
     step();
