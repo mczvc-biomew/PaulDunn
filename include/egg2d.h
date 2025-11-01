@@ -55,10 +55,35 @@ EGG_API struct EggFileContext {
     eggFile *filePointer;
     long size;
 };
+typedef struct EggFileContext EggFileContext;
+// --- Shader Manager ---
+struct TextResource {
+    const char *src;
+    long size;
+};
+
+#define SHADER_VERT 0
+#define SHADER_FRAG 1
+#define SHADER_NO_ERROR 0
+#define SHADER_READ_ERROR (-1)
+#define SHADER_COMPILE_ERROR (-2)
+
+struct EggShader {
+    int type;
+    GLuint id;
+    struct TextResource src;
+    int error;
+};
+
+typedef struct EggShader EggShader;
 
 EGG_API struct EggFileContext eggFileOpen(void *ioContext, const char *fileName);
 EGG_API void eggFileClose(eggFile *pFile);
 EGG_API size_t eggFileRead(eggFile *pFile, long bytesToRead, void *buffer);
+
+struct EggShader eggLoadVertShaderFile(const char *relativePath);
+struct EggShader eggLoadFragShaderFile(const char *relativePath);
+void eggFreeShader(EggShader obj);
 
 extern int g_targetWidth, g_targetHeight;
 extern double g_targetAspect;
