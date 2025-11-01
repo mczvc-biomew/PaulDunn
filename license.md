@@ -1,6 +1,8 @@
 # Easy Game Graphics
 
-EGG (Egg Co.) - Copyright (C) 2022 Meldencio Czarlemagne Veras Corrales - czarm827@protonmail.com
+EGG (Egg Co., Picosoft) - 
+Copyright (C) 2022 [mczvc]<br>
+Meldencio Czarlemagne Veras Corrales - [mczvc@proton.me]
 
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
@@ -14,3 +16,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 
   * GLAD is under [MIT license](https://github.com/Dav1dde/glad/blob/glad2/LICENSE) (see Khronos)
   * SDL 2.0 is under [zlib license](https://www.zlib.net/zlib_license.html)
+---
+[mczvc@proton.me]: mailto:mczvc@proton.me
+[mczvc]: https://mczvc-biomew.github.io
