@@ -308,7 +308,7 @@ EGG_API void eggLogMessage(const char *formatStr, ...) {
     va_end(params);
 }
 
-EGG_API eggFile *eggFileOpen(void *ioContext, const char *fileName) {
+EGG_API struct EggFileContext eggFileOpen(void *ioContext, const char *fileName) {
     eggFile *pFile = NULL;
 
 #ifdef ANDROID
@@ -320,7 +320,21 @@ EGG_API eggFile *eggFileOpen(void *ioContext, const char *fileName) {
 #else
     pFile = fopen(fileName, "rb");
 #endif
-    return pFile;
+    if (pFile == NULL) {
+        fprintf(stderr, "Unable to open file '%s", fileName);
+        SDL_Quit();
+    }
+    fseek(pFile, 0, SEEK_END);
+    const long file_size = ftell(pFile);
+    fseek(pFile, 0, SEEK_SET);
+    if (file_size == -1) {
+        fprintf(stderr, "Unable to read file '%s'", fileName);
+        fclose(pFile);
+        SDL_Quit();
+    }
+    return (struct EggFileContext) {
+        .filePointer = pFile,
+        .size = file_size };
 }
 
 EGG_API void eggFileClose(eggFile *pFile) {
@@ -334,7 +348,7 @@ EGG_API void eggFileClose(eggFile *pFile) {
     }
 }
 
-EGG_API size_t eggFileRead(eggFile *pFile, int bytesToRead, void *buffer) {
+EGG_API size_t eggFileRead(eggFile *pFile, long bytesToRead, void *buffer) {
     unsigned long bytesRead = 0;
 
     if (pFile == NULL) {
@@ -347,7 +361,7 @@ EGG_API size_t eggFileRead(eggFile *pFile, int bytesToRead, void *buffer) {
     bytesRead = fread(buffer, bytesToRead, 1, pFile);
 #endif
 
-    return bytesRead == 0 ? bytesToRead : bytesRead;
+    return bytesRead == 0 || bytesRead == 1 ? bytesToRead : bytesRead;
 }
 
 void acquireAssetToMemory(void *bytes, unsigned int size) {
@@ -396,9 +410,9 @@ EGG_API char *eggLoadPCM(void *ioContext, const char *fileName, int *width, int 
     char *buffer;
     eggFile *fp;
     PCM_HEADER Header;
-    int bytesRead;
+    size_t bytesRead;
 
-    fp = eggFileOpen(ioContext, fileName);
+    fp = eggFileOpen(ioContext, fileName).filePointer;
 
     if (fp == NULL) {
         eggLogMessage("[eggLoadPCM] FAILED to load: { %s }\n", fileName);
