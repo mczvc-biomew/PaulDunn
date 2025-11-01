@@ -322,7 +322,7 @@ EGG_API struct EggFileContext eggFileOpen(void *ioContext, const char *fileName)
 #endif
     if (pFile == NULL) {
         fprintf(stderr, "Unable to open file '%s", fileName);
-        SDL_Quit();
+        EGG_Quit();
     }
     fseek(pFile, 0, SEEK_END);
     const long file_size = ftell(pFile);
@@ -330,7 +330,7 @@ EGG_API struct EggFileContext eggFileOpen(void *ioContext, const char *fileName)
     if (file_size == -1) {
         fprintf(stderr, "Unable to read file '%s'", fileName);
         fclose(pFile);
-        SDL_Quit();
+        EGG_Quit();
     }
     return (struct EggFileContext) {
         .filePointer = pFile,
@@ -364,6 +364,10 @@ EGG_API size_t eggFileRead(eggFile *pFile, long bytesToRead, void *buffer) {
     return bytesRead == 0 || bytesRead == 1 ? bytesToRead : bytesRead;
 }
 
+/**
+ * (!!) Only call when you have allocated memory to the heap!
+ * It will deallocate all assets in the memory. So use it with caution!
+ */
 void acquireAssetToMemory(void *bytes, unsigned int size) {
     assetsBuffer[assetsIndex] = bytes;
     assetsIndex ++;
@@ -425,7 +429,7 @@ EGG_API char *eggLoadPCM(void *ioContext, const char *fileName, int *width, int 
     *height = Header.Height;
 
     if (Header.ColorDepth == 128) {
-        int bytesToRead = sizeof(char) * (*width) * (*height) * Header.ColorDepth / 8;
+        int bytesToRead = (int)sizeof(char) * (*width) * (*height) * Header.ColorDepth / 8;
 
 //      Allocate the image data buffer
         buffer = (char *) malloc(bytesToRead);
