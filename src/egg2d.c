@@ -14,7 +14,7 @@
  *
  * <li> https://mczvc-biomew.github.io/picosoft </li>
  */
-#define EGG_VERSION 0x000304
+#define EGG_VERSION 0x000305
 
 #include "egg2d.h"
 
@@ -287,6 +287,124 @@ GLuint eggShaderCreateProgram(GLuint vertexShaderObj, GLuint fragmentShaderObj) 
     return shaderProgramObj;
 }
 
+
+// --- Shader Manager ---
+
+struct EggShader eggLoadVertShaderFile(const char *relativePath) {
+    //  Read vertex shader source.
+    struct EggFileContext eggFile = eggFileOpen(NULL, "./chaos.vs");
+    if (eggFile.size == -1) {
+        return (struct EggShader) {
+            .type = SHADER_VERT,
+            .src = (struct TextResource) {
+                .src = NULL,
+                .size = -1
+            },
+            .error = SHADER_READ_ERROR
+        };
+    }
+    long vertexBytesLen = (long) sizeof(char) * eggFile.size;
+    char *vertexShaderSrc = (char *) malloc(vertexBytesLen);
+
+    size_t bytesRead = eggFileRead(eggFile.filePointer, vertexBytesLen, vertexShaderSrc);
+    vertexShaderSrc[bytesRead] = '\0';
+
+    struct EggShader vertex = {
+        .type = SHADER_VERT,
+        .id = 0,
+        .src = (struct TextResource) {
+            .src = vertexShaderSrc,
+            .size = (long)bytesRead
+        },
+        .error = SHADER_NO_ERROR
+    };
+
+//  Compile the vertex shader.
+    GLuint vertexShaderObj = eggCompileShader(GL_VERTEX_SHADER, vertexShaderSrc);
+
+    vertex.id = vertexShaderObj;
+    eggFileClose(eggFile.filePointer);
+//    free(vertexShaderSrc);
+
+    if (vertexShaderObj == 0) {
+        fprintf(stderr,
+                "There's an error compiling the vertex-shader [obj].\n");
+#if defined(DEBUG)
+        printf("%ld bytes\n", eggFile.size);
+#endif
+        GL_CHECK();
+        free(vertexShaderSrc);
+        vertex.src.src = NULL;
+        vertex.src.size = -1;
+        vertex.error = SHADER_COMPILE_ERROR;
+//        SDL_Quit();
+
+    }
+    return vertex;
+}
+
+struct EggShader eggLoadFragShaderFile(const char *relativePath) {
+
+//  Read fragment shader source.
+    EggFileContext eggFile = eggFileOpen(NULL, relativePath);
+
+    if (eggFile.size == -1) {
+        return (struct EggShader) {
+            .type = SHADER_FRAG,
+            .src = (struct TextResource) {
+                .src = NULL,
+                .size = -1
+            },
+            .error = SHADER_READ_ERROR
+        };
+    }
+
+    long fragmentBytesLen = (long)sizeof(char) * eggFile.size;
+    char *fragmentShaderSrc = (char *) malloc(fragmentBytesLen);
+
+    size_t bytesRead = eggFileRead(eggFile.filePointer, fragmentBytesLen, fragmentShaderSrc);
+    fragmentShaderSrc[bytesRead] = '\0';
+
+    struct EggShader frag = {
+            .type = SHADER_FRAG,
+            .id = 0,
+            .src = (struct TextResource) {
+                .src = fragmentShaderSrc,
+                .size = (long)bytesRead
+            },
+            .error = SHADER_NO_ERROR
+    };
+
+//  Compile the fragment shader.
+    GLuint fragmentShaderObj = eggCompileShader(GL_FRAGMENT_SHADER, fragmentShaderSrc);
+
+    frag.id = fragmentShaderObj;
+    eggFileClose(eggFile.filePointer);
+
+    if (fragmentShaderObj == 0) {
+        fprintf(stderr,
+                "There's an error compiling the fragment-shader [obj].\n");
+#if defined(DEBUG)
+        printf("%ld bytes\n", eggFile.size)
+#endif
+        GL_CHECK();
+        free(fragmentShaderSrc);
+        frag.src.src = NULL;
+        frag.src.size = -1;
+        frag.error = SHADER_COMPILE_ERROR;
+    }
+    return frag;
+}
+
+void eggFreeShader(EggShader obj) {
+    if (obj.src.src != NULL) {
+        free((char *) obj.src.src);
+    }
+}
+
+
+// --- LOGGING ---
+
 /**
  * EggUtil Log message.
  * @param formatStr
@@ -308,6 +426,15 @@ EGG_API void eggLogMessage(const char *formatStr, ...) {
     va_end(params);
 }
 
+/**
+ * (EGG::) File Open.\n
+ * Opens a file, (on android, input-output context is use to load assets by the asset manager),
+ * query its size, and then return an EggFileContext { \n
+ * `.filePointer`: the file pointer of opened file, on error, it sets to NULL pointer \n
+ * `.size`: the physical size of file, on error, it sets to -1 \n
+ * }
+ *
+ */
 EGG_API struct EggFileContext eggFileOpen(void *ioContext, const char *fileName) {
     eggFile *pFile = NULL;
 
@@ -322,7 +449,10 @@ EGG_API struct EggFileContext eggFileOpen(void *ioContext, const char *fileName)
 #endif
     if (pFile == NULL) {
         fprintf(stderr, "Unable to open file '%s", fileName);
-        EGG_Quit();
+        return (struct EggFileContext) {
+            .filePointer = NULL,
+            .size = -1
+        };
     }
     fseek(pFile, 0, SEEK_END);
     const long file_size = ftell(pFile);
@@ -330,7 +460,10 @@ EGG_API struct EggFileContext eggFileOpen(void *ioContext, const char *fileName)
     if (file_size == -1) {
         fprintf(stderr, "Unable to read file '%s'", fileName);
         fclose(pFile);
-        EGG_Quit();
+        return (struct EggFileContext) {
+                .filePointer = NULL,
+                .size = -1
+        };
     }
     return (struct EggFileContext) {
         .filePointer = pFile,
