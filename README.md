@@ -24,7 +24,7 @@ on Ubuntu:
 > sudo apt install libsdl2-dev
 
 
-[YouMeKa Lang](https://github.com/mczvc-biomew/YouMeKaLang)
+# [YouMeKa Lang](https://github.com/mczvc-biomew/YouMeKaLang)
 > `` YouMeKa Programming Language ``
 
 `mczvc`
